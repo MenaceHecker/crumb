@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
 import { wp } from '../helpers/common';
 import { hp } from '../helpers/common';
+import {theme} from '../constants/theme';
 
 const Welcome = () => {
   console.log('Calculated Image Width:', wp(100)); // Check this in your console
@@ -13,7 +14,7 @@ const Welcome = () => {
       <StatusBar style ="dark" />
       <View style = {styles.container}>
         {/* welcome image goes here */}
-        <Image style={styles.welcomeImage} resizeMode='contain' source={require('../assets/images/welcome.png')} />
+        <Image style={styles.welcomeImage} resizeMode='contain' source={require('../assets/images/welcome2.png')} />
       {/* title of the app */}
       <View style = {{gap :20}}>
         <Text style = {styles.title}>Joe!</Text>
@@ -41,6 +42,11 @@ const styles = StyleSheet.create({
         width: wp(100),
         height: hp(30),
         alignSelf: 'center',
-        backgroundColor: 'pink',
+    },
+    title: {
+      color: theme.colors.text,
+      fontSize: hp(4),
+      textAlign: 'center',
+      fontWeight: theme.fonts.extraBold
     }
 })
