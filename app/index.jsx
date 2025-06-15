@@ -1,6 +1,9 @@
-import { View, Text } from 'react-native'
+import { View, Text, Button } from 'react-native'
 import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Welcome from './welcome';
 
 const index = () => {
   const router = useRouter();
