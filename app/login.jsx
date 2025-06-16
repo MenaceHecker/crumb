@@ -3,6 +3,7 @@ import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import Home from '../assets/icons/Home';
 import { theme } from '../constants/theme'
+import Icon from '../assets/icons';
 
 const Login = () => {
   return (
