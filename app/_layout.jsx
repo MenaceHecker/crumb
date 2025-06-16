@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const _layout = () => {
   return (
     <Stack
-    screenOptions={{ headerShown: false, animation: 'fade_from_bottom' }}
+    screenOptions={{ headerShown: false}}
     />
   )
 }

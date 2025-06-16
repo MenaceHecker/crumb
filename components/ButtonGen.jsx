@@ -1,16 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import {theme} from '../constants/theme'
+import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import Loading from './Loading'
 
 const ButtonGen = ({
     buttonStyle,
     textStyle,
-    title ='',
-    onPress=() => {},
-    loading = false, //To show loading indicator
-    hasShadow = true, //To add shadow to the button
+    title = '',
+    onPress = () => {},
+    loading = false,
+    hasShadow = true,
 }) => {
     const shadowStyle = {
         shadowColor: theme.colors.dark,
@@ -22,6 +22,10 @@ const ButtonGen = ({
         shadowRadius: 8,
         elevation: 4,
     }
+
+    // Ensure title is always a valid string
+    const displayTitle = title != null ? String(title) : '';
+
     if (loading) {
         return (
             <View style={[styles.button, buttonStyle, {backgroundColor: 'white'}]}>
@@ -29,11 +33,14 @@ const ButtonGen = ({
             </View>
         )
     }
-  return (
-    <Pressable onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
-      <Text style={[styles.text, textStyle ]}>{title}</Text>
-      </Pressable>
-  )
+
+    return (
+        <Pressable onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
+            <Text style={[styles.text, textStyle]}>
+                {displayTitle}
+            </Text>
+        </Pressable>
+    )
 }
 
 export default ButtonGen
@@ -47,7 +54,7 @@ const styles = StyleSheet.create({
         borderCurve: 'continuous',
         borderRadius: theme.radius.xl
     },
-    text:{
+    text: {
         fontSize: hp(2.5),
         color: 'white',
         fontWeight: theme.fonts.bold,

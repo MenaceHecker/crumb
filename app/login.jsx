@@ -5,13 +5,16 @@ import Home from '../assets/icons/Home';
 import { theme } from '../constants/theme'
 import Icon from '../assets/icons';
 import BackButton from '../components/BackButton';
+import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 const Login = () => {
+    const router = useRouter();
   return (
     <ScreenWrapper>
       <StatusBar style="dark" />
         <View style = {styles.container}>
-            <BackButton />
+            <BackButton router = {router} />
             </View>
     </ScreenWrapper>
   )

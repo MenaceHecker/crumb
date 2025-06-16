@@ -1,49 +1,56 @@
-import { StyleSheet, Text, View, Button, StatusBar, Image, Pressable } from 'react-native'
+import { StyleSheet, Text, View, StatusBar, Image, Pressable } from 'react-native'
 import React from 'react'
 import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
-import { wp } from '../helpers/common';
-import { hp } from '../helpers/common';
-import {theme} from '../constants/theme';
+import { wp, hp } from '../helpers/common';
+import { theme } from '../constants/theme';
 import ButtonGen from '../components/ButtonGen';
 
 const Welcome = () => {
   const router = useRouter();
-  console.log('Calculated Image Width:', wp(100)); // Tesing this for error
-  console.log('Calculated Image Height:', hp(30));
+  
   return (
     <ScreenWrapper bg="white">
-      <StatusBar barStyle ="dark-content" /> {/* Using barStyle as discussed for 'ture' error fix */}
-      <View style = {styles.container}>
+      <StatusBar barStyle="dark-content" /> 
+      <View style={styles.container}>
         {/* welcome image goes here */}
-        <Image style={styles.welcomeImage} resizeMode='contain' source={require('../assets/images/welcome3.png')} />
-      {/* title of the app */}
-      <View style = {{gap :20}}>
-        <Text style = {styles.title}>Joe!</Text>
-        <Text style = {styles.punchline}>
-          What are es be happening in the world today?
-        </Text>
-      </View>
-      {/*the footer goes here */}
-      <View style = {styles.footer}>
-        <ButtonGen
-        title='Get Started'
-        buttonStyle={{marginHorizontal: wp(3)}}
-        onPress={() =>  router.push('/signup')}
+        <Image 
+          style={styles.welcomeImage} 
+          resizeMode='contain' 
+          source={require('../assets/images/welcome3.png')} 
         />
-        <View style = {styles.bottomTextContainer}>
-          <Text style = {styles.loginText}>
-            Already have an account?
+        
+        {/* title of the app - Test with explicit string */}
+        <View style={{gap: 20}}>
+          <Text style={styles.title}>Joe!</Text>
+          <Text style={styles.punchline}>
+            What are es be happening in the world today?
           </Text>
-          <Pressable onPress={() => router.push('/login')}>
-            <Text style = {[styles.loginText, {color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold}]}>
-              Login
-            </Text>
-          </Pressable>
         </View>
-        {/* the footer ends here */}
-      </View> {/* <--- THIS IS THE MISSING CLOSING TAG FOR styles.footer */}
-    </View> {/* This closes styles.container */}
+
+        {/* the footer goes here */}
+        <View style={styles.footer}>
+          <ButtonGen
+            title="Get Started"
+            buttonStyle={{marginHorizontal: wp(3)}}
+            onPress={() => router.push('/signup')}
+          />
+          
+          <View style={styles.bottomTextContainer}>
+            <Text style={styles.loginText}>
+              Already have an account?
+            </Text>
+            <Pressable onPress={() => router.push('/login')}>
+              <Text style={[styles.loginText, {
+                color: theme.colors.primaryDark, 
+                fontWeight: theme.fonts.semibold
+              }]}>
+                Login
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
     </ScreenWrapper>
   )
 }
@@ -69,13 +76,13 @@ const styles = StyleSheet.create({
       textAlign: 'center',
       fontWeight: theme.fonts.extraBold
     },
-    punchline:{
+    punchline: {
       textAlign: 'center',
       paddingHorizontal: wp(10),
       fontSize: hp(1.7),
       color: theme.colors.text,
     },
-    footer : {
+    footer: {
       gap: 30,
       width: '100%',
     },
