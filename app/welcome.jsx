@@ -24,11 +24,14 @@ const Welcome = () => {
         </Text>
       </View>
       {/*the footer goes here */}
+      <View style = {styles.footer}>
       <ButtonGen
       title='Get Started'
       buttonStyle={{marginHorizontal: wp(3)}}
       onPress={() => {}}
       />
+      </View>
+      {/* the footer ends here */}
       </View>
     </ScreenWrapper>
   )
@@ -60,5 +63,9 @@ const styles = StyleSheet.create({
       paddingHorizontal: wp(10),
       fontSize: hp(1.7),
       color: theme.colors.text,
+    },
+    footer : {
+      gap: 30,
+      width: '100%',
     }
 })

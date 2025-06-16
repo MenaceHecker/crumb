@@ -9,10 +9,24 @@ const ButtonGen = ({
     title ='',
     onPress=() => {},
     loading = false,
-    hasShadow = true,
+    hasShadow = true, //To add shadow to the button
 }) => {
     const shadowStyle = {
-
+        shadowColor: theme.colors.dark,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
+    }
+    if (loading) {
+        return (
+            <View style={[styles.button, buttonStyle, {backgroundColor: 'white'}]}>
+                
+            </View>
+        )
     }
   return (
     <Pressable onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
