@@ -8,6 +8,7 @@ import {theme} from '../constants/theme';
 import ButtonGen from '../components/ButtonGen';
 
 const Welcome = () => {
+  const router = useRouter();
   console.log('Calculated Image Width:', wp(100)); // Tesing this for error
   console.log('Calculated Image Height:', hp(30));
   return (
@@ -28,13 +29,13 @@ const Welcome = () => {
         <ButtonGen
         title='Get Started'
         buttonStyle={{marginHorizontal: wp(3)}}
-        onPress={() => {}}
+        onPress={() =>  router.push('/signup')}
         />
         <View style = {styles.bottomTextContainer}>
           <Text style = {styles.loginText}>
             Already have an account?
           </Text>
-          <Pressable>
+          <Pressable onPress={() => router.push('/login')}>
             <Text style = {[styles.loginText, {color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold}]}>
               Login
             </Text>
