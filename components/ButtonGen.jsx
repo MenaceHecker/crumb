@@ -2,13 +2,14 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import {theme} from '../constants/theme'
 import { hp } from '../helpers/common'
+import Loading from './Loading'
 
 const ButtonGen = ({
     buttonStyle,
     textStyle,
     title ='',
     onPress=() => {},
-    loading = false,
+    loading = false, //To show loading indicator
     hasShadow = true, //To add shadow to the button
 }) => {
     const shadowStyle = {
@@ -24,7 +25,7 @@ const ButtonGen = ({
     if (loading) {
         return (
             <View style={[styles.button, buttonStyle, {backgroundColor: 'white'}]}>
-                
+                <Loading />
             </View>
         )
     }

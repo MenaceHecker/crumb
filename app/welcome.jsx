@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Button, StatusBar, Image } from 'react-native'
+import { StyleSheet, Text, View, Button, StatusBar, Image, Pressable } from 'react-native'
 import React from 'react'
 import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
@@ -8,11 +8,11 @@ import {theme} from '../constants/theme';
 import ButtonGen from '../components/ButtonGen';
 
 const Welcome = () => {
-  console.log('Calculated Image Width:', wp(100)); // Tesing this for error 
+  console.log('Calculated Image Width:', wp(100)); // Tesing this for error
   console.log('Calculated Image Height:', hp(30));
   return (
     <ScreenWrapper bg="white">
-      <StatusBar style ="dark" />
+      <StatusBar barStyle ="dark-content" /> {/* Using barStyle as discussed for 'ture' error fix */}
       <View style = {styles.container}>
         {/* welcome image goes here */}
         <Image style={styles.welcomeImage} resizeMode='contain' source={require('../assets/images/welcome3.png')} />
@@ -25,14 +25,24 @@ const Welcome = () => {
       </View>
       {/*the footer goes here */}
       <View style = {styles.footer}>
-      <ButtonGen
-      title='Get Started'
-      buttonStyle={{marginHorizontal: wp(3)}}
-      onPress={() => {}}
-      />
-      </View>
-      {/* the footer ends here */}
-      </View>
+        <ButtonGen
+        title='Get Started'
+        buttonStyle={{marginHorizontal: wp(3)}}
+        onPress={() => {}}
+        />
+        <View style = {styles.bottomTextContainer}>
+          <Text style = {styles.loginText}>
+            Already have an account?
+          </Text>
+          <Pressable>
+            <Text style = {[styles.loginText, {color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold}]}>
+              Login
+            </Text>
+          </Pressable>
+        </View>
+        {/* the footer ends here */}
+      </View> {/* <--- THIS IS THE MISSING CLOSING TAG FOR styles.footer */}
+    </View> {/* This closes styles.container */}
     </ScreenWrapper>
   )
 }
@@ -67,5 +77,16 @@ const styles = StyleSheet.create({
     footer : {
       gap: 30,
       width: '100%',
+    },
+    bottomTextContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 5,
+    },
+    loginText: {
+      textAlign: 'center',
+      color: theme.colors.text,
+      fontSize: hp(1.8),
     }
 })
