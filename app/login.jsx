@@ -4,12 +4,15 @@ import ScreenWrapper from '../components/ScreenWrapper'
 import Home from '../assets/icons/Home';
 import { theme } from '../constants/theme'
 import Icon from '../assets/icons';
+import BackButton from '../components/BackButton';
 
 const Login = () => {
   return (
     <ScreenWrapper>
-      <Text>Login</Text>
-      <Home strokeWidth ={2} color={theme.colors.primary}/>
+      <StatusBar style="dark" />
+        <View style = {styles.container}>
+            <BackButton />
+            </View>
     </ScreenWrapper>
   )
 }
