@@ -5,17 +5,17 @@ import {hp , wp} from '../helpers/common'
 
 const Input = (props) => {
   return (
-    <View style = {[styles.inputContainer, props.containerStyles && props.containerStyles]}>
+    <View style = {[styles.container, props.containerStyles && props.containerStyles]}>
       {
         props.icon && props.icon
       }
       <TextInput
-      style ={{flex : 1}}
-      placeholderTextColor = {theme.colors.textLight}
-      ref={props.inputRef && props.inputRef}
-      {...props}
+        style={{flex: 1}}
+        placeholderTextColor={theme.colors.textLight}
+        ref={props.inputRef && props.inputRef}
+        {...props}
       />
-      </View>
+    </View>
   )
 }
 

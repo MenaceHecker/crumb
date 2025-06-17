@@ -31,10 +31,10 @@ const Login = () => {
                         Please login to your account
                     </Text>
                     <Input
-                        icon={<Icon name="mail" size={26} strokeWidth = {1.6} />}
-                        placeholder="Email"
-                        onChangeText={value => {}}
-                        />
+    icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
+    placeholder="Email"
+    onChangeText={value => console.log('Input value:', value)}
+/>
                     </View>
             </View>
             </View>
