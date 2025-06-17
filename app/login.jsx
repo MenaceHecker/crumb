@@ -20,6 +20,9 @@ const Login = () => {
             {/* welcome text goes here */}
             <View>
                 <Text style={styles.welcomeText}>
+                    Joe
+                </Text>
+                <Text style={styles.welcomeText}>
                     Welcome Back!
                 </Text>
                 {/* form goes here */}
@@ -28,7 +31,7 @@ const Login = () => {
                         Please login to your account
                     </Text>
                     <Input
-                        icon={<Icon name="email" size={26} strokeWidth = {1.6} />}
+                        icon={<Icon name="mail" size={26} strokeWidth = {1.6} />}
                         placeholder="Email"
                         onChangeText={value => {}}
                         />
