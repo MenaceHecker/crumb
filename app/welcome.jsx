@@ -17,7 +17,7 @@ const Welcome = () => {
         <Image 
           style={styles.welcomeImage} 
           resizeMode='contain' 
-          source={require('../assets/images/welcome3.png')} 
+          source={require('../assets/images/welcome4.png')} 
         />
         
         {/* title of the app - Test with explicit string */}
