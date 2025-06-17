@@ -7,6 +7,7 @@ import Icon from '../assets/icons';
 import BackButton from '../components/BackButton';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import {wp, hp} from '../helpers/common';
 
 const Login = () => {
     const router = useRouter();
