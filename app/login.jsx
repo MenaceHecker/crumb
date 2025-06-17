@@ -8,6 +8,7 @@ import BackButton from '../components/BackButton';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {wp, hp} from '../helpers/common';
+import Input from '../components/Input';
 
 const Login = () => {
     const router = useRouter();
@@ -16,6 +17,23 @@ const Login = () => {
       <StatusBar style="dark" />
         <View style = {styles.container}>
             <BackButton router = {router} />
+            {/* welcome text goes here */}
+            <View>
+                <Text style={styles.welcomeText}>
+                    Welcome Back!
+                </Text>
+                {/* form goes here */}
+                <View style={styles.form}>
+                    <Text style = {{fontSize: hp(1.5), color: theme.colors.text}}>
+                        Please login to your account
+                    </Text>
+                    <Input
+                        icon={<Icon name="email" size={26} strokeWidth = {1.6} />}
+                        placeholder="Email"
+                        onChangeText={value => {}}
+                        />
+                    </View>
+            </View>
             </View>
     </ScreenWrapper>
   )

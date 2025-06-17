@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native'
 import React from 'react'
 import { theme } from '../constants/theme'
+import {hp , wp} from '../helpers/common'
 
 const Input = (props) => {
   return (
