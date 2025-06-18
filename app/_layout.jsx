@@ -1,8 +1,9 @@
-import { View, Text, Button } from 'react-native'
+import { View, Text, Button } from 'react-native' 
 import React, { useEffect } from 'react'
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext' 
+import { supabase } from '../lib/supabase' 
 
 
 const _layout = () => {
@@ -13,20 +14,31 @@ const _layout = () => {
   )
 }
 
-
 const MainLayout = () => {
   const {setAuth} = useAuth();
+  const router = useRouter(); 
+
   useEffect(() => {
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log ('session user: ', session?.user);
-    })
+
+      if(session) {
+        // set auth
+        //move to home screen
+      } else {
+        //set auth null
+        //moving to welcome screen
+      }
+    });
+    return () => {
+      authListener.unsubscribe();
+    };
+  }, []);
   return (
     <Stack
-    screenOptions={{ headerShown: false}}
+      screenOptions={{ headerShown: false }} 
     />
   )
 }
 
 export default _layout
-
-//There is still error in the code
