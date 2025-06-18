@@ -33,7 +33,7 @@ const Welcome = () => {
           <ButtonGen
             title="Get Started"
             buttonStyle={{marginHorizontal: wp(3)}}
-            onPress={() => router.push('/signup')}
+            onPress={() => router.push('/signUp')}
           />
           
           <View style={styles.bottomTextContainer}>
