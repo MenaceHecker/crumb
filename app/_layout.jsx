@@ -2,7 +2,7 @@ import { View, Text, Button } from 'react-native'
 import React, { useEffect } from 'react'
 import { Stack, useRouter } from 'expo-router' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AuthProvider, useAuth } from './contexts/AuthContext' 
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { supabase } from '../lib/supabase' 
 
 
@@ -30,10 +30,8 @@ const MainLayout = () => {
         router.replace('/welcome'); 
       }
     });
-    return () => {
-      authListener.unsubscribe();
-    };
   }, []);
+  
   return (
     <Stack
       screenOptions={{ headerShown: false }} 
