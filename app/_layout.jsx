@@ -2,8 +2,9 @@ import { View, Text, Button } from 'react-native'
 import React, { useEffect } from 'react'
 import { Stack, useRouter } from 'expo-router' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { supabase } from '../lib/supabase' 
+import { AuthProvider, useAuth } from '../contexts/AuthContext'
+
 
 
 const _layout = () => {

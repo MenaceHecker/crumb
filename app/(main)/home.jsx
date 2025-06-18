@@ -1,9 +1,11 @@
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import ButtonGen from '../../components/ButtonGen'
-import { useAuth } from '../contexts/AuthContext'
 import ScreenWrapper from '../../components/ScreenWrapper'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from "../../contexts/AuthContext"  
 
+//Had dual imports of Auth here
 
 const Home = () => {
     const {setAuth} = useAuth();
