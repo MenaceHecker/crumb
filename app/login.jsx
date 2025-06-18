@@ -11,6 +11,7 @@ import {wp, hp} from '../helpers/common';
 import Input from '../components/Input';
 import { Button } from '@react-navigation/elements'; 
 import ButtonGen from '../components/ButtonGen';
+import { supabase } from '../lib/supabase';
 
 const Login = () => { 
     const router = useRouter();
@@ -24,6 +25,19 @@ const Login = () => {
                 "Error",
                 "Please fill in all fields"
             );
+        }
+        let email = emailRef.current.trim();
+        let password = passwordRef.current.trim();
+        setLoading(true);
+        const {error} = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        }); 
+        setLoading(false);
+        console.log('Login Error:', error);
+        if(error)
+        {
+            Alert.alert('Login Error', error.message);
         }
     };
 
