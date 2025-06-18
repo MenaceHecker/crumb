@@ -20,14 +20,14 @@ const MainLayout = () => {
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log ('session user: ', session?.user);
+      console.log ('session user: ', session?.user?.id);
 
       if(session) {
-        // set auth
-        //move to home screen
+        setAuth(session?.user);
+        router.replace('/home'); // redirect to home if authenticated
       } else {
-        //set auth null
-        //moving to welcome screen
+        setAuth(null);
+        router.replace('/welcome'); 
       }
     });
     return () => {
