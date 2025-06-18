@@ -21,58 +21,50 @@ const SignUp = () => {
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
-        // Trim whitespace from inputs
         let name = nameRef.current.trim();
         let email = emailRef.current.trim();
         let password = passwordRef.current.trim();
 
-        // 1. Basic Validation and early exit
-        if (!name || !email || !password) { // Ensure all fields are checked, including name
+        if (!name || !email || !password) { 
             Alert.alert(
                 "Error",
                 "Please fill in all fields to sign up"
             );
-            return; // <--- IMPORTANT: Stop execution if validation fails
+            return; 
         }
 
-        setLoading(true); // Start loading
+        setLoading(true); 
 
         try {
             const {data, error} = await supabase.auth.signUp({
                 email,
                 password,
-                // You can pass user metadata in the `options` object if needed for Supabase profiles
                 options: {
                     data: {
-                        full_name: name, // Example: store the name in user metadata
+                        full_name: name, 
                     },
                 },
             });
 
             if (error) {
-                console.error('Supabase Sign Up Error:', error.message); // Log error for debugging
+                console.error('Supabase Sign Up Error:', error.message); 
                 Alert.alert('Sign Up Error', error.message);
             } else {
-                // Check if session or user data is available
-                if (data && data.user) { // data.user will be available after successful signup
+                if (data && data.user) { 
                     console.log('Sign Up successful! User:', data.user);
-                    // console.log('Session:', data.session); // data.session might be null if email confirmation is required
 
-                    Alert.alert('Sign Up Success', 'Account created! Please check your email to verify (if required).');
-                    // 4. Navigate after successful sign-up
-                    router.replace('/login'); // Or router.replace('/home') if you auto-login
+                    Alert.alert('Sign Up Success, what do you want now?');
+                    router.replace('/login'); // could do router.replace('/home') for auto-login
                 } else {
-                    // This case handles situations where signup might be pending (e.g., email verification needed)
-                    // but no immediate session is returned.
-                    Alert.alert('Sign Up Success', 'Please check your email for a verification link to complete your sign-up!');
-                    router.replace('/login'); // Redirect to login to await verification
+                    Alert.alert('Sign Up Success', 'Please check your email for a verification, or maybe not!');
+                    router.replace('/login'); 
                 }
             }
         } catch (error) {
-            console.error('Unexpected Sign Up Error:', error); // Catch any unexpected JS errors
+            console.error('Unexpected Sign Up Error:', error); 
             Alert.alert('Sign Up Error', 'An unexpected error occurred during sign up.');
         } finally {
-            setLoading(false); // Always set loading to false when the process finishes
+            setLoading(false); // setting loading to false when the process finishes
         }
     };
 
