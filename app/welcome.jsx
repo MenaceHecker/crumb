@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     },
     loginText: {
       textAlign: 'center',
-      color: theme.colors.text,
+      color: theme.colors.text, //theme.colors.text
       fontSize: hp(1.8),
     }
 })
