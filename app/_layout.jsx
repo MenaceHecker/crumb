@@ -16,7 +16,7 @@ const _layout = () => {
 }
 
 const MainLayout = () => {
-  const {setAuth} = useAuth();
+  const {setAuth,setUserData} = useAuth();
   const router = useRouter(); 
 
   useEffect(() => {
@@ -25,6 +25,7 @@ const MainLayout = () => {
 
       if(session) {
         setAuth(session?.user);
+        updateUserData(session?.user);
         router.replace('/home'); // redirect to home if authenticated
       } else {
         setAuth(null);
@@ -32,6 +33,13 @@ const MainLayout = () => {
       }
     });
   }, []);
+
+  const updateUserData = async (user) => {
+    let res = await getUserData(user?.is);
+    if(res.success){
+
+    }
+        }
   
   return (
     <Stack
@@ -39,5 +47,5 @@ const MainLayout = () => {
     />
   )
 }
-
+//Some issue with the code, looking into it
 export default _layout
