@@ -8,7 +8,9 @@ import { useAuth } from "../../contexts/AuthContext"
 //Had dual imports of Auth here
 
 const Home = () => {
-    const {setAuth} = useAuth();
+    const {user, setAuth} = useAuth();
+    console.log('Home user: ', user);
+
     const onLogout = async () => {
         //setAuth(null);
         const {error} = await supabase.auth.signOut();
