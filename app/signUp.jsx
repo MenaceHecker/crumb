@@ -35,7 +35,7 @@ const SignUp = () => {
 
         setLoading(true); 
 
-        try {
+        try { //Using this just because there is a chance the auth could fail
             const {data, error} = await supabase.auth.signUp({
                 email,
                 password,
