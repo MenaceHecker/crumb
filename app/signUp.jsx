@@ -16,13 +16,14 @@ const SignUp = () => {
     const router = useRouter();
     const emailRef = React.useRef("");
     const passwordRef = React.useRef("");
+    const nameRef = React.useRef("");
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
         if(!emailRef.current || !passwordRef.current) {
             Alert.alert(
                 "Error",
-                "Please fill in all fields"
+                "Please fill in all fields to sign up"
             );
         }
     };
@@ -36,17 +37,22 @@ const SignUp = () => {
                     {/* welcome text goes here */}
                     <View>
                         <Text style={styles.welcomeText}>
-                            Joe
+                            Let's Go
                         </Text>
                         <Text style={styles.welcomeText}>
-                            Welcome Back!
+                            FBI Open Up!
                         </Text>
                     </View>
                         {/* form goes here */}
                         <View style={styles.form}>
                             <Text style = {{fontSize: hp(1.5), color: theme.colors.text}}>
-                                Please login to your account
+                                Please enter details to create an account
                             </Text>
+                            <Input
+                                icon={<Icon name="user" size={26} strokeWidth={1.6} />}
+                                placeholder="Full Name Please"
+                                onChangeText={value => nameRef.current = value}
+                            />
                             <Input
                                 icon={<Icon name="mail" size={26} strokeWidth={1.6} />}
                                 placeholder="Email"
@@ -55,20 +61,20 @@ const SignUp = () => {
                             <Input
                                 icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
                                 placeholder="Password"
-                                secureTextEntry={true} // Fixed typo and added = {true}
+                                secureTextEntry={true} 
                                 onChangeText={value => passwordRef.current = value}
                             />
                             <Text style = {styles.forgotPassword }>
                                 Forgot Password?
                                 </Text>
                                 {/* Login Button */}
-                                <ButtonGen title='Login' loading={loading} onPress={onSubmit}/>
+                                <ButtonGen title='Sign Up' loading={loading} onPress={onSubmit}/>
                             </View>
 
                         {    /* footer goes here */}
                         <View style={styles.footer}>
                             <Text style={styles.footerText}>
-                                Don't have an account?
+                                Already have an account?
                             </Text>
                             <Pressable>
                                 <Text style={[styles.footerText, {
