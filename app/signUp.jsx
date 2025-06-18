@@ -64,9 +64,6 @@ const SignUp = () => {
                                 secureTextEntry={true} 
                                 onChangeText={value => passwordRef.current = value}
                             />
-                            <Text style = {styles.forgotPassword }>
-                                Forgot Password?
-                                </Text>
                                 {/* Login Button */}
                                 <ButtonGen title='Sign Up' loading={loading} onPress={onSubmit}/>
                             </View>
@@ -81,7 +78,7 @@ const SignUp = () => {
                                     color: theme.colors.primaryDark,
                                     fontWeight: theme.fonts.semibold
                                 }]}>
-                                    Sign Up
+                                    Log in
                                 </Text>
                             </Pressable>
                         </View>

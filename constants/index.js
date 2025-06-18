@@ -1,0 +1,2 @@
+export const supabaseUrl = 'https://rrpngynnwrtwcsskdfax.supabase.co'
+export const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJycG5neW5ud3J0d2Nzc2tkZmF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyMjE0OTAsImV4cCI6MjA2NTc5NzQ5MH0.h5swwo6PBIfwQ03mFNxu3wJNwpSQP42l5jRiOZKDjT4'
