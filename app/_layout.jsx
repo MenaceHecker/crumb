@@ -37,7 +37,7 @@ const MainLayout = () => {
   const updateUserData = async (user) => {
     let res = await getUserData(user?.is);
     if(res.success){
-
+      setUserData(res.data);
     }
         }
   
