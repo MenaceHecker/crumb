@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View } from 'react-native'
+import { Alert, StyleSheet, Text, View, Pressable } from 'react-native'
 import React from 'react'
 import ButtonGen from '../../components/ButtonGen'
 import ScreenWrapper from '../../components/ScreenWrapper'
@@ -6,6 +6,8 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from "../../contexts/AuthContext"  
 import { wp, hp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
+import Icon from '../../assets/icons'; 
+
 
 //Had dual imports of Auth here
 
