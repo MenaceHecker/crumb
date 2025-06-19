@@ -7,12 +7,14 @@ import { useAuth } from "../../contexts/AuthContext"
 import { wp, hp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
 import Icon from '../../assets/icons'; 
+import { useRouter } from 'expo-router';
 
 
 //Had dual imports of Auth here
 
 const Home = () => {
     const {user, setAuth} = useAuth();
+    const router = useRouter();
     console.log('Home user: ', user);
 
     const onLogout = async () => {
@@ -30,13 +32,13 @@ const Home = () => {
         <View style={styles.header}>
             <Text style={styles.title}>Joe!?</Text>
             <View style = {styles.icons}>
-                <Pressable>
+                <Pressable onPress={() => router.push('/notifications')}>
                     <Icon name = "heart" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={() => router.push('/newPost')}>
                     <Icon name = "plus" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={() => router.push('/profile')}>
                     <Icon name = "user" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
                 </Pressable>
             </View>
