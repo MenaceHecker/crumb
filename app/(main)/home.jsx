@@ -4,7 +4,7 @@ import ButtonGen from '../../components/ButtonGen'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from "../../contexts/AuthContext"  
-import { wp } from '../../helpers/common'
+import { wp, hp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
 
 //Had dual imports of Auth here
@@ -23,7 +23,23 @@ const Home = () => {
 
   return (
     <ScreenWrapper>
-      <Text>Home</Text>
+      <View style={styles.container}>
+        {/* header goes here now */}
+        <View style={styles.header}>
+            <Text style={styles.title}>Joe!?</Text>
+            <View style = {styles.icons}>
+                <Pressable>
+                    <Icon name = "heart" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                </Pressable>
+                <Pressable>
+                    <Icon name = "plus" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                </Pressable>
+                <Pressable>
+                    <Icon name = "user" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                </Pressable>
+            </View>
+            </View>
+      </View>
       <ButtonGen title='Logout' onPress={onLogout} />
     </ScreenWrapper>
   )
