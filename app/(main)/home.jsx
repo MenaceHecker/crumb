@@ -8,6 +8,7 @@ import { wp, hp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
 import Icon from '../../assets/icons'; 
 import { useRouter } from 'expo-router';
+import Avatar from '../../components/Avatar';
 
 
 //Had dual imports of Auth here
@@ -26,7 +27,7 @@ const Home = () => {
     }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper bg="white">
       <View style={styles.container}>
         {/* header goes here now */}
         <View style={styles.header}>
@@ -40,6 +41,12 @@ const Home = () => {
                 </Pressable>
                 <Pressable onPress={() => router.push('/profile')}>
                     <Icon name = "user" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                     <Avatar
+                    uri={user?.image}
+                    size={hp(4.3)}
+                    rounded={theme.radius.sm}
+                    style={{borderWidth: 2}}
+                    />
                 </Pressable>
             </View>
             </View>
