@@ -8,6 +8,7 @@ This is a social media application built with **React Native** for a seamless cr
 * User profiles
 * Posting and viewing content
 * Interacting with posts (Liking, commenting)
+* (A super cool feature coming soon, I can tell you on discord or LinkedIn)
 
 ## Technologies Used
 
@@ -18,10 +19,20 @@ This is a social media application built with **React Native** for a seamless cr
 
 1.  **Clone the repository:**
     ```bash
-    git clone [your-repo-url]
-    cd [your-repo-name]
+    git clone [https://github.com/MenaceHecker/crumb]
+    cd [crumb]
     ```
 2.  **Install dependencies:**
     ```bash
     npm install # or yarn install
     ```
+
+3.  **Run the app:**
+    ```bash
+    npx react-native run-android # For Android
+    npx react-native run-ios   # For iOS (macOS required)
+    ```
+
+---
+
+Feel free to explore and contribute!
