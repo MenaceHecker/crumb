@@ -10,6 +10,7 @@ import Icon from '../../assets/icons'
 import { theme } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import Avatar from '../../components/Avatar'
+import { router } from 'expo-router'
 
 const Profile = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const UserHeader = ({user, router, handleLogout}) => {
   return (
     <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
       <View>
-        <Header title="Profile" showBackButton = {true}/>
+        <Header title="Profile" mb={30} />
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Icon name="logout" color={theme.colors.rose} />
         </TouchableOpacity>
@@ -68,9 +69,14 @@ const UserHeader = ({user, router, handleLogout}) => {
         size={hp(12)}
         rounded={theme.radius.xxl*1.4}
         />
-        <Pressable style={styles.editIcon}>
+        <Pressable style={styles.editIcon} onPress={() => router.push('editProfile')}>
           <Icon name="edit" strokeWidth={2.5} size={20} />
         </Pressable>
+        </View>
+        {/* username and address*/}
+        <View style={{alignItems: 'center', gap: 4}}>
+          <Text style={styles.userName}> {user && user.user_metadata && user.user_metadata.full_name} </Text>
+          <Text style={styles.infoText}> Chinnerman Place, Bat Spell </Text>
         </View>
       </View>
       </View>
