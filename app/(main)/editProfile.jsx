@@ -36,6 +36,17 @@ const EditProfile = () => {
     const onPickImage = async () => {
 
     }
+    const onSubmit = async () => {
+        let userData = {...user};
+        let {name, phoneNumber, address, image, bio} = userData;
+        if(!name || !phoneNumber || !address || !image || !bio)
+        {
+            Alert.alert("Profile", "Joe fill up all fields");
+            return; 
+        }
+        setLoading(true);
+        // update user goes here
+    }
     let imageSource = getUserImageSrc(user.image);
   return (
     <ScreenWrapper bg="white">
