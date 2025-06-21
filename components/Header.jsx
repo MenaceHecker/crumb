@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { useRouter } from 'expo-router';
-import BackButton from './BackButton';
-import {theme} from '../theme';
+import BackButton from './BackButton'; 
+import {theme} from '../constants/theme'
 import {hp} from '../helpers/common'
 
 const Header = ({title, showBackButton = false, mb=10}) => {
@@ -10,9 +10,9 @@ const Header = ({title, showBackButton = false, mb=10}) => {
   return (
     <View style={[styles.container, {marginBottom: mb}]}>
       {
-        showBackButton && (
-          <View style={styles.showBackButton}>
-            <showBackButton router = {router} />
+        showBackButton && ( 
+          <View style={styles.backButton}>
+            <BackButton router = {router} /> 
             </View>
         )
       }
@@ -39,5 +39,9 @@ const styles = StyleSheet.create({
         fontSize: hp(2.7),
         fontWeight: theme.fonts.semiBold,
         color: theme.colors.textDark,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 0
     }
 })
