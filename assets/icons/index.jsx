@@ -22,6 +22,7 @@ import Delete from './Delete';
 import Logout from './logout';
 import Image from './Image';
 import Video from './Video';
+import NFC from './NFCAdd'
 
 const icons = {
     home: Home,
@@ -45,6 +46,7 @@ const icons = {
     logout: Logout,
     image: Image,
     video: Video,
+    nfc: NFC,
 }
 
 const Icon = ({name, ...props}) => {
@@ -55,6 +57,7 @@ const Icon = ({name, ...props}) => {
         width={props.size || 24}
         strokeWidth={props.strokeWidth || 1.9}
         color={theme.colors.textLight}
+        // Or could have this implementation : color={props.color || theme.colors.textLight}
         {...props}
     />
   )
