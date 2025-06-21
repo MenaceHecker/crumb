@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { hp, wp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
@@ -9,10 +9,31 @@ import { useAuth } from '../../contexts/AuthContext'
 import { getUserImageSrc } from '../../services/imageService'
 import Icon from '../../assets/icons'
 import Input from '../../components/Input'
+import ButtonGen from '../../components/ButtonGen'
 
 const EditProfile = () => {
-    const {user} = useAuth();
-    const onPickImage = {
+    const {user : currentUser} = useAuth(); 
+    const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState({
+        name: '',
+        phoneNumber: '',
+        image: null,
+        bio: '',
+        address: ''
+    });
+    useEffect(() => {
+        if(currentUser){
+            setUser({
+                name: currentUser.name || '',
+                phoneNumber: currentUser.phoneNumber || '',
+                image: currentUser.image || '',
+                address: currentUser.address || '',
+                bio: currentUser.bio || '',
+            })
+        }
+    }, [currentUser]
+    )
+    const onPickImage = async () => {
 
     }
     let imageSource = getUserImageSrc(user.image);
@@ -35,9 +56,30 @@ const EditProfile = () => {
                 <Input
                 icon ={<Icon name={"user"}/>}
                 placeholder="Your name please?"
-                value = {null}
-                onChangeText = {value => {}}
+                value = {user.name}
+                onChangeText = {value => setUser({...user, name:value })}
                 />
+                <Input
+                icon ={<Icon name={"call"}/>}
+                placeholder="You got a phone?"
+                value = {user.phoneNumber}
+                onChangeText = {value => setUser({...user, phoneNumber:value })}
+                />
+                <Input
+                icon ={<Icon name={"location"}/>}
+                placeholder="Got home or are you thy homeless?"
+                value = {user.address}
+                onChangeText = {value => setUser({...user, address:value })}
+                />
+                <Input
+                placeholder="Bio what do you know about yourself?"
+                value = {user.bio}
+                containerStyle = {styles.bio}
+                multiline={true}
+                onChangeText = {value => setUser({...user, bio:value })}
+                />
+
+                <ButtonGen title="Update" loading={loading} onPress={onSubmit}/>
             </View>
         </ScrollView>
       </View>
