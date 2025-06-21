@@ -10,6 +10,7 @@ import { getUserImageSrc } from '../../services/imageService'
 import Icon from '../../assets/icons'
 import Input from '../../components/Input'
 import ButtonGen from '../../components/ButtonGen'
+import { updateUser } from '../../services/userService'
 
 const EditProfile = () => {
     const {user : currentUser} = useAuth(); 
@@ -46,6 +47,9 @@ const EditProfile = () => {
         }
         setLoading(true);
         // update user goes here
+        const res = await updateUser(currentUser?.is, userData);
+        setLoading(false);
+        console.log('updating user results: ', res);
     }
     let imageSource = getUserImageSrc(user.image);
   return (
@@ -81,7 +85,7 @@ const EditProfile = () => {
                 placeholder="Got home or are you thy homeless?"
                 value = {user.address}
                 onChangeText = {value => setUser({...user, address:value })}
-                />
+                /> 
                 <Input
                 placeholder="Bio what do you know about yourself?"
                 value = {user.bio}
@@ -94,7 +98,9 @@ const EditProfile = () => {
             </View>
         </ScrollView>
       </View>
+      
     </ScreenWrapper>
+    
   )
 }
 
@@ -103,7 +109,7 @@ export default EditProfile
 const styles = StyleSheet.create({
     bio: {
         flexDirection: 'row',
-        height: hp(1.5),
+        height: hp(15),
         alignItems: 'flex-start',
         paddingVertical: 15,
     },
