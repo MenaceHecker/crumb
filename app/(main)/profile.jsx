@@ -6,6 +6,8 @@ import { useAuth } from '../../contexts/AuthContext'
 import Header from '../../components/Header'
 import BackButton from '../../components/BackButton'
 import { wp } from '../../helpers/common'
+import Icon from '../../assets/icons'
+import { theme } from '../../constants/theme'
 
 
 const Profile = () => {
@@ -20,7 +22,7 @@ const Profile = () => {
     </ScreenWrapper>
   )
 }
-const UserHeader = ({user, router}) => {
+const UserHeader = ({user, router, handleLogout}) => {
   return (
     <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
       <View>
