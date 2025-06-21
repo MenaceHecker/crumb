@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   editIcon: {
     position: 'absolute',
     bottom: 0,
-    right: -12,
+    right: -60,
     padding: 7,
     borderRadius: 50,
     backgroundColor: 'white',
