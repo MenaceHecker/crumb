@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native' 
+import { StyleSheet, Text, TouchableOpacity, View, Alert, Pressable } from 'react-native' 
 import React from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { useRouter } from 'expo-router' // 
@@ -9,6 +9,7 @@ import { wp, hp } from '../../helpers/common'
 import Icon from '../../assets/icons' 
 import { theme } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
+import Avatar from '../../components/Avatar'
 
 const Profile = () => {
   const router = useRouter();
@@ -57,6 +58,21 @@ const UserHeader = ({user, router, handleLogout}) => {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Icon name="logout" color={theme.colors.rose} />
         </TouchableOpacity>
+      </View>
+      
+      <View style={styles.container}>
+      <View style={{gap: 15}}>
+        <View style={styles.avatarContainer}>
+          <Avatar
+        uri={user?.image}
+        size={hp(12)}
+        rounded={theme.radius.xxl*1.4}
+        />
+        <Pressable style={styles.editIcon}>
+          <Icon name="edit" strokeWidth={2.5} size={20} />
+        </Pressable>
+        </View>
+      </View>
       </View>
     </View>
   )
