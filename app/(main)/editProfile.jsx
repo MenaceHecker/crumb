@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { hp, wp } from '../../helpers/common'
@@ -22,6 +22,7 @@ const EditProfile = () => {
         bio: '',
         address: ''
     });
+    
     useEffect(() => {
         if(currentUser){
             setUser({
@@ -32,83 +33,105 @@ const EditProfile = () => {
                 bio: currentUser.bio || '',
             })
         }
-    }, [currentUser]
-    )
+    }, [currentUser])
+    
     const onPickImage = async () => {
-
+        // Image picker implementation
     }
+    
     const onSubmit = async () => {
         let userData = {...user};
         let {name, phoneNumber, address, image, bio} = userData;
-        if(!name || !phoneNumber || !address || !image || !bio)
-        {
-            Alert.alert("Profile", "Joe fill up all fields");
+        
+        // More flexible validation - allow empty image and bio for now
+        if(!name || !phoneNumber || !address) {
+            Alert.alert("Profile", "Please fill up all required fields (name, phone, address)");
             return; 
         }
+        
         setLoading(true);
-        // update user goes here
-        const res = await updateUser(currentUser?.is, userData);
-        setLoading(false);
-        console.log('updating user results: ', res);
+        
+        try {
+            // Fixed: currentUser?.id instead of currentUser?.is
+            const res = await updateUser(currentUser?.id, userData);
+            setLoading(false);
+            console.log('updating user results: ', res);
+            
+            if(res.success) {
+                Alert.alert("Success", "Profile updated successfully!");
+            } else {
+                Alert.alert("Error", res.msg || "Failed to update profile");
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error('Update error:', error);
+            Alert.alert("Error", "Something went wrong. Please try again.");
+        }
     }
-    let imageSource = getUserImageSrc(user.image);
-  return (
-    <ScreenWrapper bg="white">
-      <View style={styles.container}>
-        <ScrollView style ={{flex:1}}>
-            <Header title = "Edit Profile" />
-            {/* Here goes a form to edit */}
-            <View style={styles.form}>
-                <View style={styles.avatarContainer}>
-                    <Image source={imageSource} style={styles.avatar} />
-                    <Pressable style={styles.cameraIcon} onPress={onPickImage}>
-                        <Icon name="camera" size = {20} strokeWidth={2.5}/>
-                    </Pressable>
-                </View>
-                <Text style={{fontSize: hp(1.5), color: theme.colors.text}}>
-                    Wut are your profile about
-                </Text>
-                <Input
-                icon ={<Icon name={"user"}/>}
-                placeholder="Your name please?"
-                value = {user.name}
-                onChangeText = {value => setUser({...user, name:value })}
-                />
-                <Input
-                icon ={<Icon name={"call"}/>}
-                placeholder="You got a phone?"
-                value = {user.phoneNumber}
-                onChangeText = {value => setUser({...user, phoneNumber:value })}
-                />
-                <Input
-                icon ={<Icon name={"location"}/>}
-                placeholder="Got home or are you thy homeless?"
-                value = {user.address}
-                onChangeText = {value => setUser({...user, address:value })}
-                /> 
-                <Input
-                placeholder="Bio what do you know about yourself?"
-                value = {user.bio}
-                containerStyle = {styles.bio}
-                multiline={true}
-                onChangeText = {value => setUser({...user, bio:value })}
-                />
-
-                <ButtonGen title="Update" loading={loading} onPress={onSubmit}/>
-            </View>
-        </ScrollView>
-      </View>
-      
-    </ScreenWrapper>
     
-  )
+    let imageSource = getUserImageSrc(user.image);
+    
+    return (
+        <ScreenWrapper bg="white">
+            <View style={styles.container}>
+                <ScrollView style={{flex:1}}>
+                    <Header title="Edit Profile" />
+                    <View style={styles.form}>
+                        <View style={styles.avatarContainer}>
+                            <Image source={imageSource} style={styles.avatar} />
+                            <Pressable style={styles.cameraIcon} onPress={onPickImage}>
+                                <Icon name="camera" size={20} strokeWidth={2.5}/>
+                            </Pressable>
+                        </View>
+                        <Text style={{fontSize: hp(1.5), color: theme.colors.text}}>
+                            What are your profile about
+                        </Text>
+                        <Input
+                            icon={<Icon name={"user"}/>}
+                            placeholder="Your name please?"
+                            value={user.name}
+                            onChangeText={value => setUser({...user, name:value})}
+                        />
+                        <Input
+                            icon={<Icon name={"call"}/>}
+                            placeholder="You got a phone?"
+                            value={user.phoneNumber}
+                            onChangeText={value => setUser({...user, phoneNumber:value})}
+                        />
+                        <Input
+                            icon={<Icon name={"location"}/>}
+                            placeholder="Got home or are you thy homeless?"
+                            value={user.address}
+                            onChangeText={value => setUser({...user, address:value})}
+                        /> 
+                        <Input
+                            placeholder="Bio - what do you know about yourself?"
+                            value={user.bio}
+                            containerStyle={styles.bio}
+                            multiline={true}
+                            onChangeText={value => setUser({...user, bio:value})}
+                        />
+
+                        <ButtonGen 
+                            title="Update" 
+                            loading={loading} 
+                            onPress={onSubmit}
+                            style={styles.updateButton}
+                        />
+                    </View>
+                </ScrollView>
+            </View>
+        </ScreenWrapper>
+    )
 }
 
 export default EditProfile
 
 const styles = StyleSheet.create({
+    updateButton: {
+        marginTop: 20,
+    },
     bio: {
-        flexDirection: 'row',
         height: hp(15),
         alignItems: 'flex-start',
         paddingVertical: 15,
