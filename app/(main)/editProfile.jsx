@@ -12,6 +12,7 @@ import Input from '../../components/Input'
 import ButtonGen from '../../components/ButtonGen'
 import { updateUser } from '../../services/userService'
 import { useRouter } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 
 const EditProfile = () => {
     const {user : currentUser, setUserData} = useAuth(); 
@@ -38,7 +39,15 @@ const EditProfile = () => {
     }, [currentUser])
     
     const onPickImage = async () => {
-        // Image picker implementation
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.7,
+        });
+        if (!result.canceled) {
+      setUser({...user, image: result.assets[0]});
+    }
     }
     
     const onSubmit = async () => {
@@ -65,8 +74,8 @@ const EditProfile = () => {
     Alert.alert("Error", res.msg || "Failed to update profile");
     }
     }
-    
-    let imageSource = getUserImageSrc(user.image);
+    //No more problems
+    let imageSource = user.image && typeof user.image == 'object'? user.image.uri: getUserImageSrc(user.image)
     
     return (
         <ScreenWrapper bg="white">
