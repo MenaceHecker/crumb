@@ -78,6 +78,33 @@ const UserHeader = ({user, router, handleLogout}) => {
           <Text style={styles.userName}> {user && user.user_metadata && user.user_metadata.full_name} </Text>
           <Text style={styles.infoText}> Chinnerman Place, Bat Spell </Text>
         </View>
+        {/* Here goes the email, phone , bio */}
+        <View style={{gap:10}}>
+          <View style={styles.info}>
+            <Icon name="mail" size={20} color={theme.colors.textLight} />
+            <Text style={styles.infoText}>
+              {user && user.email}
+            </Text>
+          </View>
+          {
+            user && user.phoneNumber && (
+                        <View style={styles.info}>
+            <Icon name="call" size={20} color={theme.colors.textLight} />
+            <Text style={styles.infoText}>
+              {user && user.phoneNumber}
+            </Text>
+          </View>
+            )
+          }
+
+          {
+            user && user.bio && (
+              <Text style={styles.infoText}>
+                {user.bio}
+              </Text>
+            )
+          }
+        </View>
       </View>
       </View>
     </View>
