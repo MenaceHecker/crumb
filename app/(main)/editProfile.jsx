@@ -11,10 +11,12 @@ import Icon from '../../assets/icons'
 import Input from '../../components/Input'
 import ButtonGen from '../../components/ButtonGen'
 import { updateUser } from '../../services/userService'
+import { useRouter } from 'expo-router'
 
 const EditProfile = () => {
-    const {user : currentUser} = useAuth(); 
+    const {user : currentUser, setUserData} = useAuth(); 
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
     const [user, setUser] = useState({
         name: '',
         phoneNumber: '',
@@ -51,22 +53,17 @@ const EditProfile = () => {
         
         setLoading(true);
         
-        try {
-            // Fixed: currentUser?.id instead of currentUser?.is
-            const res = await updateUser(currentUser?.id, userData);
-            setLoading(false);
-            console.log('updating user results: ', res);
-            
-            if(res.success) {
-                Alert.alert("Success", "Profile updated successfully!");
-            } else {
-                Alert.alert("Error", res.msg || "Failed to update profile");
-            }
-        } catch (error) {
-            setLoading(false);
-            console.error('Update error:', error);
-            Alert.alert("Error", "Something went wrong. Please try again.");
-        }
+        const res = await updateUser(currentUser?.id, userData);
+    setLoading(false);
+    console.log('updating user results: ', res);
+
+    if(res.success) {
+        setUserData({...currentUser, ...userData});
+        router.back();
+        Alert.alert("Success", "Profile updated successfully!");
+    } else {
+    Alert.alert("Error", res.msg || "Failed to update profile");
+    }
     }
     
     let imageSource = getUserImageSrc(user.image);
