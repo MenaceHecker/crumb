@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   editIcon: {
     position: 'absolute',
     bottom: 0,
-    right: -60,
+    right: -12,
     padding: 7,
     borderRadius: 50,
     backgroundColor: 'white',
@@ -127,8 +127,9 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     height: hp(12),
-    width: wp(12),
-    alignSelf: 'center'
+    // width: wp(12),
+    alignSelf: 'center',
+     alignItems: 'center'
   },
   headerShape: {
     width: wp(100),
