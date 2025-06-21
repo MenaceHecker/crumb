@@ -1,27 +1,54 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native' 
 import React from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
-import { router, useRouter } from 'expo-router'
-import { useAuth } from '../../contexts/AuthContext'
+import { useRouter } from 'expo-router' // 
+import { useAuth } from '../../contexts/AuthContext' 
 import Header from '../../components/Header'
 import BackButton from '../../components/BackButton'
 import { wp, hp } from '../../helpers/common'
-import Icon from '../../assets/icons'
+import Icon from '../../assets/icons' 
 import { theme } from '../../constants/theme'
-
+import { supabase } from '../../lib/supabase'
 
 const Profile = () => {
   const router = useRouter();
-  const { user, setAuth } = useAuth();
-  const handleLogout = async () => {
+  const { user, setAuth } = useAuth(); 
 
+  const onLogout = async () => {
+    const {error} = await supabase.auth.signOut();
+    if (error) {
+        console.error('Supabase Sign Out Error:', error.message); 
+        Alert.alert('Sign Out Error', error.message);
+    } else {
+        
+        setAuth(null);
+        console.log('User signed out successfully.');
+    }
   }
+
+  const handleLogout = async () => { 
+    Alert.alert('Confirm', 'Are you sure you wanna logout?', [
+      {
+        text: 'Cancel',
+        onPress: ()=> console.log('Logout cancelled'),
+        style: 'cancel'
+      },
+      {
+        text: 'Logout',
+        onPress: () => onLogout(), 
+        style: 'destructive'
+      }
+    ])
+  }
+
   return (
     <ScreenWrapper bg='white'>
       <UserHeader user = {user} router = {router} handleLogout={handleLogout}/>
     </ScreenWrapper>
   )
 }
+
+
 const UserHeader = ({user, router, handleLogout}) => {
   return (
     <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
@@ -90,7 +117,7 @@ const styles = StyleSheet.create({
   headerShape: {
     width: wp(100),
     height: hp(20)
-  }, 
+  },
   headerContainer: {
     marginHorizontal: wp(4),
     marginBottom: 20
