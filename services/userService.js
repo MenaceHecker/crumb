@@ -18,7 +18,7 @@ export const getUserData = async (userId) => {
 export const updateUser = async (userId, data) => { 
     try {
         const {error} = await supabase
-        .from ('profiles')
+        .from ('users')
         .update(data)
         .eq('id', userId);
 
