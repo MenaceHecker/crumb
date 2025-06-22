@@ -75,8 +75,12 @@ const UserHeader = ({user, router, handleLogout}) => {
         </View>
         {/* username and address*/}
         <View style={{alignItems: 'center', gap: 4}}>
-          <Text style={styles.userName}> {user && user.user_metadata && user.user_metadata.full_name} </Text>
-          <Text style={styles.infoText}> Chinnerman Place, Bat Spell </Text>
+          <Text style={styles.userName}> 
+            {user?.name || user?.user_metadata?.full_name || 'No Name'} 
+          </Text>
+          <Text style={styles.infoText}> 
+            {user?.address || 'No Address'} 
+          </Text>
         </View>
         {/* Here goes the email, phone , bio */}
         <View style={{gap:10}}>

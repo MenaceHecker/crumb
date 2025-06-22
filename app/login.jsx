@@ -12,9 +12,12 @@ import Input from '../components/Input';
 import { Button } from '@react-navigation/elements'; 
 import ButtonGen from '../components/ButtonGen';
 import { supabase } from '../lib/supabase';
+import { getUserData } from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => { 
     const router = useRouter();
+    const { setUserData } = useAuth();
     const emailRef = React.useRef("");
     const passwordRef = React.useRef("");
     const [loading, setLoading] = React.useState(false);
@@ -25,20 +28,41 @@ const Login = () => {
                 "Error",
                 "Please fill in all fields"
             );
+            return;
         }
         let email = emailRef.current.trim();
         let password = passwordRef.current.trim();
         setLoading(true);
-        const {error} = await supabase.auth.signInWithPassword({
+        
+        const {data: authData, error} = await supabase.auth.signInWithPassword({
             email,
             password,
         }); 
-        setLoading(false);
-        console.log('Login Error:', error);
-        if(error)
-        {
+        
+        if(error) {
+            setLoading(false);
+            console.log('Login Error:', error);
             Alert.alert('Login Error', error.message);
+            return;
         }
+
+        // Fetch complete user profile data
+        if(authData?.user) {
+            const profileResult = await getUserData(authData.user.id);
+            if(profileResult.success) {
+                // Merge auth data with profile data
+                const completeUserData = {
+                    ...authData.user,
+                    ...profileResult.data
+                };
+                setUserData(completeUserData);
+            } else {
+                // If no profile data, just use auth data
+                setUserData(authData.user);
+            }
+        }
+        
+        setLoading(false);
     };
 
     
@@ -69,7 +93,7 @@ const Login = () => {
                             <Input
                                 icon={<Icon name="lock" size={26} strokeWidth={1.6} />}
                                 placeholder="Password"
-                                secureTextEntry={true} // Fixed typo and added = {true}
+                                secureTextEntry={true}
                                 onChangeText={value => passwordRef.current = value}
                             />
                             <Text style = {styles.forgotPassword }>
@@ -117,7 +141,6 @@ const styles = StyleSheet.create({
     forgotPassword: {
         textAlign: 'right',
         color : 'red', 
-        //color: theme.colors.text
         fontWeight: theme.fonts.semibold,
     },
     footer: {

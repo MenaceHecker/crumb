@@ -1,19 +1,22 @@
 import { supabase } from '../lib/supabase';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer';
+import { supabaseUrl } from '../constants';
 
 export const getUserImageSrc = imagePath => {
-  if (!imagePath) { 
+  if (imagePath) { 
+    return getSupabaseFileUrl(imagePath);
+  }
+  else{
     return require('../assets/images/defaultUser2.png');
   }
-  else { 
-    // If it's a full URL, return as is
-    if (imagePath.startsWith('http')) {
-      return { uri: imagePath };
+}
+export const getSupabaseFileUrl = filePath => {
+  if(filePath) {
+    if (filePath.startsWith('http')) {
+      return {uri: filePath};
     }
-    // If it's a Supabase storage path, get the public URL
-    const { data } = supabase.storage.from('uploads').getPublicUrl(imagePath);
-    return { uri: data.publicUrl };
+    return {uri: `${supabaseUrl}/storage/v1/object/public/uploads/${filePath}`}
   }
 }
 
@@ -53,16 +56,9 @@ export const uploadFile = async (folderName, fileUri, isImage = true) => {
     
     console.log('Upload successful, data:', data);
     
-    // Get the public URL
-    const { data: urlData } = supabase.storage
-      .from('uploads')
-      .getPublicUrl(data.path);
-    
-    console.log('Public URL:', urlData.publicUrl);
-    
     return { 
       success: true, 
-      data: urlData.publicUrl // Return the full public URL instead of just the path
+      data: data.path
     };
     
   } catch (error) {

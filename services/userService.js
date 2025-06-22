@@ -1,20 +1,24 @@
 import {supabase} from '../lib/supabase'
+
 export const getUserData = async (userId) => { 
     try {
-        const {data, error} = async (userId) => {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
+        const {data, error} = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if(error){
+            return {success: false, msg: error?.message};
         }
+        return {success: true, data};
     }
     catch (error) {
         console.log('Error fetching user data:', error);
         return { success: false, msg: error.message };
-    
     }
-    }  
+}
+
 export const updateUser = async (userId, data) => { 
     try {
         const {error} = await supabase
@@ -28,8 +32,7 @@ export const updateUser = async (userId, data) => {
         return {success : true, data};
     }
     catch (error) {
-        console.log('Error fetching user data:', error);
+        console.log('Error updating user data:', error);
         return { success: false, msg: error.message };
-    
     }
-    }                    
+}
