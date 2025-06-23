@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, Alert, Pressable } from 'react-native' 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { useRouter } from 'expo-router' // 
 import { useAuth } from '../../contexts/AuthContext' 
@@ -11,10 +11,52 @@ import { theme } from '../../constants/theme'
 import { supabase } from '../../lib/supabase'
 import Avatar from '../../components/Avatar'
 import { router } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 
 const Profile = () => {
   const router = useRouter();
   const { user, setAuth } = useAuth(); 
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('users') // Make sure this matches your table name
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error('Error fetching profile:', error);
+      } else if (data) {
+        console.log('Fetched profile data:', data);
+        setProfileData(data);
+      } else {
+        console.log('No profile data found in database');
+        setProfileData(null);
+      }
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch profile data when component mounts
+  useEffect(() => {
+    fetchUserProfile();
+  }, [user?.id]);
+
+  // Refresh profile data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserProfile();
+    }, [user?.id])
+  );
 
   const onLogout = async () => {
     const {error} = await supabase.auth.signOut();
@@ -22,7 +64,6 @@ const Profile = () => {
         console.error('Supabase Sign Out Error:', error.message); 
         Alert.alert('Sign Out Error', error.message);
     } else {
-        
         setAuth(null);
         console.log('User signed out successfully.');
     }
@@ -43,15 +84,33 @@ const Profile = () => {
     ])
   }
 
+  // Combine auth user data with profile data
+  const combinedUser = {
+    ...user,
+    ...profileData
+  };
+
   return (
     <ScreenWrapper bg='white'>
-      <UserHeader user = {user} router = {router} handleLogout={handleLogout}/>
+      <UserHeader 
+        user={combinedUser} 
+        router={router} 
+        handleLogout={handleLogout}
+        loading={loading}
+      />
     </ScreenWrapper>
   )
 }
 
+const UserHeader = ({user, router, handleLogout, loading}) => {
+  if (loading) {
+    return (
+      <View style={{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4), justifyContent: 'center', alignItems: 'center'}}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
 
-const UserHeader = ({user, router, handleLogout}) => {
   return (
     <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
       <View>
@@ -65,13 +124,13 @@ const UserHeader = ({user, router, handleLogout}) => {
       <View style={{gap: 15}}>
         <View style={styles.avatarContainer}>
           <Avatar
-        uri={user?.image}
-        size={hp(12)}
-        rounded={theme.radius.xxl*1.4}
-        />
-        <Pressable style={styles.editIcon} onPress={() => router.push('editProfile')}>
-          <Icon name="edit" strokeWidth={2.5} size={20} />
-        </Pressable>
+            uri={user?.image}
+            size={hp(12)}
+            rounded={theme.radius.xxl*1.4}
+          />
+          <Pressable style={styles.editIcon} onPress={() => router.push('editProfile')}>
+            <Icon name="edit" strokeWidth={2.5} size={20} />
+          </Pressable>
         </View>
         {/* username and address*/}
         <View style={{alignItems: 'center', gap: 4}}>
@@ -87,22 +146,22 @@ const UserHeader = ({user, router, handleLogout}) => {
           <View style={styles.info}>
             <Icon name="mail" size={20} color={theme.colors.textLight} />
             <Text style={styles.infoText}>
-              {user && user.email}
+              {user?.email}
             </Text>
           </View>
           {
-            user && user.phoneNumber && (
-                        <View style={styles.info}>
-            <Icon name="call" size={20} color={theme.colors.textLight} />
-            <Text style={styles.infoText}>
-              {user && user.phoneNumber}
-            </Text>
-          </View>
+            user?.phoneNumber && (
+              <View style={styles.info}>
+                <Icon name="call" size={20} color={theme.colors.textLight} />
+                <Text style={styles.infoText}>
+                  {user.phoneNumber}
+                </Text>
+              </View>
             )
           }
 
           {
-            user && user.bio && (
+            user?.bio && (
               <Text style={styles.infoText}>
                 {user.bio}
               </Text>
@@ -164,9 +223,8 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     height: hp(12),
-    // width: wp(12),
     alignSelf: 'center',
-     alignItems: 'center'
+    alignItems: 'center'
   },
   headerShape: {
     width: wp(100),
