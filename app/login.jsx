@@ -34,35 +34,45 @@ const Login = () => {
         let password = passwordRef.current.trim();
         setLoading(true);
         
-        const {data: authData, error} = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        }); 
-        
-        if(error) {
-            setLoading(false);
-            console.log('Login Error:', error);
-            Alert.alert('Login Error', error.message);
-            return;
-        }
-
-        // Fetch complete user profile data
-        if(authData?.user) {
-            const profileResult = await getUserData(authData.user.id);
-            if(profileResult.success) {
-                // Merge auth data with profile data
-                const completeUserData = {
-                    ...authData.user,
-                    ...profileResult.data
-                };
-                setUserData(completeUserData);
-            } else {
-                // If no profile data, just use auth data
-                setUserData(authData.user);
+        try {
+            const {data: authData, error} = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            }); 
+            
+            if(error) {
+                console.log('Login Error:', error);
+                Alert.alert('Login Error', error.message);
+                return;
             }
+
+            // Fetch complete user profile data
+            if(authData?.user) {
+                const profileResult = await getUserData(authData.user.id);
+                let completeUserData = authData.user;
+                
+                if(profileResult.success) {
+                    // Merge auth data with profile data
+                    completeUserData = {
+                        ...authData.user,
+                        ...profileResult.data
+                    };
+                }
+                
+                setUserData(completeUserData);
+                
+                // Force navigation to home with a longer delay
+                setTimeout(() => {
+                    console.log('Navigating to home from login...');
+                    router.replace('/(main)/home');
+                }, 500);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            Alert.alert('Login Error', 'An unexpected error occurred');
+        } finally {
+            setLoading(false);
         }
-        
-        setLoading(false);
     };
 
     
