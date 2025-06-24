@@ -3,85 +3,72 @@ import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import Home from '../assets/icons/Home';
 import { theme } from '../constants/theme'
-import Icon from '../assets/icons'; 
+import Icon from '../assets/icons';
 import BackButton from '../components/BackButton';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {wp, hp} from '../helpers/common';
 import Input from '../components/Input';
-import { Button } from '@react-navigation/elements'; 
+import { Button } from '@react-navigation/elements';
 import ButtonGen from '../components/ButtonGen';
 import { supabase } from '../lib/supabase';
-import { getUserData } from '../services/userService';
-import { useAuth } from '../contexts/AuthContext';
+import { getUserData } from '../services/userService'; // Assuming this is imported for profile data fetch
+import { useAuth } from '../contexts/AuthContext'; // Assuming this is imported for setAuth
 
-const Login = () => { 
+const Login = () => {
     const router = useRouter();
-    const { setUserData } = useAuth();
+    const { setUserData } = useAuth(); // setUserData is available if needed, but _layout should handle setAuth
     const emailRef = React.useRef("");
     const passwordRef = React.useRef("");
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
+        // 1. Basic Validation and early exit
         if(!emailRef.current || !passwordRef.current) {
             Alert.alert(
                 "Error",
                 "Please fill in all fields"
             );
-            return;
+            return; // <--- IMPORTANT: Stop execution if validation fails
         }
+        
         let email = emailRef.current.trim();
         let password = passwordRef.current.trim();
-        setLoading(true);
         
+        setLoading(true); // Start loading
+
         try {
             const {data: authData, error} = await supabase.auth.signInWithPassword({
                 email,
                 password,
-            }); 
-            
+            });
+
             if(error) {
-                console.log('Login Error:', error);
+                console.error('Login Error:', error); // Use console.error for actual errors
                 Alert.alert('Login Error', error.message);
-                return;
+                return; // <--- IMPORTANT: Stop execution if login fails
             }
 
-            // Fetch complete user profile data
-            if(authData?.user) {
-                const profileResult = await getUserData(authData.user.id);
-                let completeUserData = authData.user;
-                
-                if(profileResult.success) {
-                    // Merge auth data with profile data
-                    completeUserData = {
-                        ...authData.user,
-                        ...profileResult.data
-                    };
-                }
-                
-                setUserData(completeUserData);
-                
-                // Debug logging
-                console.log('=== LOGIN DEBUG ===');
-                console.log('About to navigate to home');
-                console.log('Current user data:', completeUserData);
-                
-                // Try immediate navigation without timeout
-                router.dismissAll();
-                router.push('/home');
-                
-                console.log('Navigation command executed');
-                console.log('=== END LOGIN DEBUG ===');
-            }
+            // SUCCESS PATH:
+            // At this point, login was successful.
+            // The `_layout.jsx`'s `onAuthStateChange` listener will now be triggered.
+            // It is responsible for:
+            // 1. Fetching the complete user profile data from your database (if needed).
+            // 2. Calling setAuth() in your AuthContext with the full user object.
+            // 3. Navigating the user to the correct screen (e.g., '/home').
+            // Therefore, NO explicit navigation (router.push/replace/dismissAll)
+            // or setUserData calls are needed here in Login.jsx.
+
+            console.log('Login successful! Auth state change will handle navigation and user data.');
+
         } catch (error) {
-            console.error('Login error:', error);
-            Alert.alert('Login Error', 'An unexpected error occurred');
+            console.error('Unexpected Login error:', error); // Catch any unexpected JS errors
+            Alert.alert('Login Error', 'An unexpected error occurred during login.');
         } finally {
-            setLoading(false);
+            setLoading(false); // <--- Always stop loading, whether success or error (handled by try/catch)
         }
     };
 
-    
     return (
         <ScreenWrapper bg = "white">
             <StatusBar style="dark" />
@@ -133,10 +120,10 @@ const Login = () => {
                                 </Text>
                             </Pressable>
                         </View>
-                </View>    
+                </View>
         </ScreenWrapper>
     )
-} 
+}
 
 export default Login
 
@@ -156,7 +143,7 @@ const styles = StyleSheet.create({
     },
     forgotPassword: {
         textAlign: 'right',
-        color : 'red', 
+        color : 'red',
         fontWeight: theme.fonts.semibold,
     },
     footer: {
