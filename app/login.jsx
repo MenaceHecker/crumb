@@ -61,11 +61,17 @@ const Login = () => {
                 
                 setUserData(completeUserData);
                 
-                // Force navigation to home with a longer delay
-                setTimeout(() => {
-                    console.log('Navigating to home from login...');
-                    router.replace('/(main)/home');
-                }, 500);
+                // Debug logging
+                console.log('=== LOGIN DEBUG ===');
+                console.log('About to navigate to home');
+                console.log('Current user data:', completeUserData);
+                
+                // Try immediate navigation without timeout
+                router.dismissAll();
+                router.push('/home');
+                
+                console.log('Navigation command executed');
+                console.log('=== END LOGIN DEBUG ===');
             }
         } catch (error) {
             console.error('Login error:', error);

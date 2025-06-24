@@ -1,220 +1,182 @@
-import { Pressable, ScrollView, StyleSheet, Text, View, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View, Alert, Pressable } from 'react-native' 
+import React from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
-import { hp, wp } from '../../helpers/common'
-import { theme } from '../../constants/theme'
+import { useRouter } from 'expo-router' // 
+import { useAuth } from '../../contexts/AuthContext' 
 import Header from '../../components/Header'
-import { Image } from 'expo-image'
-import { useAuth } from '../../contexts/AuthContext'
-import { getUserImageSrc, uploadFile } from '../../services/imageService'
-import Icon from '../../assets/icons'
-import Input from '../../components/Input'
-import ButtonGen from '../../components/ButtonGen'
-import { updateUser } from '../../services/userService'
-import { useRouter } from 'expo-router'
-import * as ImagePicker from 'expo-image-picker'
+import BackButton from '../../components/BackButton'
+import { wp, hp } from '../../helpers/common'
+import Icon from '../../assets/icons' 
+import { theme } from '../../constants/theme'
+import { supabase } from '../../lib/supabase'
+import Avatar from '../../components/Avatar'
+import { router } from 'expo-router'
 
-const EditProfile = () => {
-    const { user: currentUser, setUserData, refreshProfile } = useAuth(); 
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
-    const [user, setUser] = useState({
-        name: '',
-        phoneNumber: '',
-        image: null,
-        bio: '',
-        address: ''
-    });
-    
-    useEffect(() => {
-        if(currentUser){
-            setUser({
-                name: currentUser.name || '',
-                phoneNumber: currentUser.phoneNumber || '',
-                image: currentUser.image || '',
-                address: currentUser.address || '',
-                bio: currentUser.bio || '',
-            })
-        }
-    }, [currentUser])
-    
-    const onPickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.7,
-        });
-        if (!result.canceled) {
-            setUser({...user, image: result.assets[0]});
-        }
-    }
-    
-    const onSubmit = async () => {
-        let userData = {...user};
-        let {name, phoneNumber, address, image, bio} = userData;
-        
-        // More flexible validation - allow empty image and bio for now
-        if(!name || !phoneNumber || !address) {
-            Alert.alert("Profile", "Please fill up all required fields (name, phone, address)");
-            return; 
-        }
-        
-        setLoading(true);
-        
-        try {
-            // Handle image upload if user selected a new image
-            if(typeof image == 'object') {
-                // Upload the new image
-                let imagesRes = await uploadFile('profiles', image?.uri, true);
-                if(imagesRes.success) {
-                    userData.image = imagesRes.data;
-                } else {
-                    userData.image = null; 
-                }
-            }
-            
-            // Update user profile
-            const res = await updateUser(currentUser?.id, userData);
-            
-            if(res.success) {
-                // Option 1: Use refreshProfile if available (recommended)
-                if (refreshProfile) {
-                    await refreshProfile();
-                } else {
-                    // Option 2: Update context directly with merged data
-                    setUserData({...currentUser, ...userData});
-                }
-                
-                Alert.alert("Success", "Profile updated successfully!", [
-                    {
-                        text: "OK",
-                        onPress: () => router.back()
-                    }
-                ]);
-            } else {
-                Alert.alert("Error", res.msg || "Failed to update profile");
-            }
-        } catch (error) {
-            console.error('Profile update error:', error);
-            Alert.alert("Error", "An unexpected error occurred while updating your profile");
-        } finally {
-            setLoading(false);
-        }
-    }
-    
-    // Handle image source display
-    let imageSource = user.image && typeof user.image == 'object' 
-        ? user.image.uri 
-        : getUserImageSrc(user.image)
-    
-    return (
-        <ScreenWrapper bg="white">
-            <View style={styles.container}>
-                <ScrollView style={{flex:1}}>
-                    <Header title="Edit Profile" />
-                    <View style={styles.form}>
-                        <View style={styles.avatarContainer}>
-                            <Image source={imageSource} style={styles.avatar} />
-                            <Pressable style={styles.cameraIcon} onPress={onPickImage}>
-                                <Icon name="camera" size={20} strokeWidth={2.5}/>
-                            </Pressable>
-                        </View>
-                        <Text style={{fontSize: hp(1.5), color: theme.colors.text}}>
-                            What are your profile about
-                        </Text>
-                        <Input
-                            icon={<Icon name={"user"}/>}
-                            placeholder="Your name please?"
-                            value={user.name}
-                            onChangeText={value => setUser({...user, name:value})}
-                        />
-                        <Input
-                            icon={<Icon name={"call"}/>}
-                            placeholder="You got a phone?"
-                            value={user.phoneNumber}
-                            onChangeText={value => setUser({...user, phoneNumber:value})}
-                        />
-                        <Input
-                            icon={<Icon name={"location"}/>}
-                            placeholder="Got home or are you thy homeless?"
-                            value={user.address}
-                            onChangeText={value => setUser({...user, address:value})}
-                        /> 
-                        <Input
-                            placeholder="Bio - what do you know about yourself?"
-                            value={user.bio}
-                            containerStyle={styles.bio}
-                            multiline={true}
-                            onChangeText={value => setUser({...user, bio:value})}
-                        />
+const Profile = () => {
+  const router = useRouter();
+  const { user, setAuth } = useAuth(); 
 
-                        <ButtonGen 
-                            title="Update" 
-                            loading={loading} 
-                            onPress={onSubmit}
-                            style={styles.updateButton}
-                        />
-                    </View>
-                </ScrollView>
-            </View>
-        </ScreenWrapper>
-    )
+  const onLogout = async () => {
+    const {error} = await supabase.auth.signOut();
+    if (error) {
+        console.error('Supabase Sign Out Error:', error.message); 
+        Alert.alert('Sign Out Error', error.message);
+    } else {
+
+        setAuth(null);
+        console.log('User signed out successfully.');
+    }
+  }
+
+  const handleLogout = async () => { 
+    Alert.alert('Confirm', 'Are you sure you wanna logout?', [
+      {
+        text: 'Cancel',
+        onPress: ()=> console.log('Logout cancelled'),
+        style: 'cancel'
+      },
+      {
+        text: 'Logout',
+        onPress: () => onLogout(), 
+        style: 'destructive'
+      }
+    ])
+  }
+
+  return (
+    <ScreenWrapper bg='white'>
+      <UserHeader user = {user} router = {router} handleLogout={handleLogout}/>
+    </ScreenWrapper>
+  )
 }
 
-export default EditProfile
+
+const UserHeader = ({user, router, handleLogout}) => {
+  return (
+    <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
+      <View>
+        <Header title="Profile" mb={30} />
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Icon name="logout" color={theme.colors.rose} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.container}>
+      <View style={{gap: 15}}>
+        <View style={styles.avatarContainer}>
+          <Avatar
+        uri={user?.image}
+        size={hp(12)}
+        rounded={theme.radius.xxl*1.4}
+        />
+        <Pressable style={styles.editIcon} onPress={() => router.push('editProfile')}>
+          <Icon name="edit" strokeWidth={2.5} size={20} />
+        </Pressable>
+        </View>
+        {/* username and address*/}
+        <View style={{alignItems: 'center', gap: 4}}>
+          <Text style={styles.userName}> 
+            {user?.name || user?.user_metadata?.full_name || 'No Name'} 
+          </Text>
+          <Text style={styles.infoText}> 
+            {user?.address || 'No Address'} 
+          </Text>
+        </View>
+        {/* Here goes the email, phone , bio */}
+        <View style={{gap:10}}>
+          <View style={styles.info}>
+            <Icon name="mail" size={20} color={theme.colors.textLight} />
+            <Text style={styles.infoText}>
+              {user && user.email}
+            </Text>
+          </View>
+          {
+            user && user.phoneNumber && (
+                        <View style={styles.info}>
+            <Icon name="call" size={20} color={theme.colors.textLight} />
+            <Text style={styles.infoText}>
+              {user && user.phoneNumber}
+            </Text>
+          </View>
+            )
+          }
+
+          {
+            user && user.bio && (
+              <Text style={styles.infoText}>
+                {user.bio}
+              </Text>
+            )
+          }
+        </View>
+      </View>
+      </View>
+    </View>
+  )
+}
+
+export default Profile
 
 const styles = StyleSheet.create({
-    updateButton: {
-        marginTop: 20,
-    },
-    bio: {
-        height: hp(15),
-        alignItems: 'flex-start',
-        paddingVertical: 15,
-    },
-    input: {
-        flexDirection: 'row',
-        borderWidth: 0.4,
-        borderColor: theme.colors.text,
-        borderRadius: theme.radius.xxl,
-        borderCurve: 'continuous',
-        padding: 17,
-        paddingHorizontal: 20,
-        gap: 15,
-    },
-    form: {
-        gap: 18,
-        marginTop: 20
-    },
-    cameraIcon: {
-        position: 'absolute',
-        bottom: 0,
-        right: -10,
-        padding: 8,
-        borderRadius: 50,
-        backgroundColor: 'white',
-        shadowColor: theme.colors.textLight,
-        shadowOffset: {width: 0, height: 4},
-        shadowOpacity: 0.4,
-        shadowRadius: 5,
-        elevation: 7,
-    },
-    avatar: {
-        width: '100%',
-        height: '100%',
-        borderRadius: theme.radius.xxl*1.8,
-        borderCurve: 'continuous',
-        borderWidth: 1,
-        borderColor: theme.colors.darkLight,
-    },
-    container: {
-        flex: 1,
-        paddingHorizontal: wp(4),
-    },
-    avatarContainer: {
-        height: hp(14),
-        width: hp(14),
-        alignSelf: 'center',
-    }
-})
+  noPosts: {
+    fontSize: hp(2),
+    textAlign: 'center',
+    color: theme.colors.text,
+  },
+  logoutButton: {
+    position: 'absolute',
+    right: 0,
+    padding: 5,
+    borderRadius: theme.radius.sm,
+    backgroundColor: '#fee2e2',
+  },
+  listStyle: {
+    paddingHorizontal: wp(4),
+    paddingBottom: 30,
+  },
+  infoText: {
+    fontSize: hp(1.6),
+    fontWeight: '500',
+    color: theme.colors.textLight,
+  },
+  info: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  userName: {
+    fontSize: hp(3),
+    fontWeight: '500',
+    color: theme.colors.textDark,
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: -12,
+    padding: 7,
+    borderRadius: 50,
+    backgroundColor: 'white',
+    shadowColor: theme.colors.textLight,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    elevation: 7
+  },
+  avatarContainer: {
+    height: hp(12),
+    // width: wp(12),
+    alignSelf: 'center',
+     alignItems: 'center'
+  },
+  headerShape: {
+    width: wp(100),
+    height: hp(20)
+  },
+  headerContainer: {
+    marginHorizontal: wp(4),
+    marginBottom: 20
+  },
+  container: {
+    flex: 1,
+  }
+  });
