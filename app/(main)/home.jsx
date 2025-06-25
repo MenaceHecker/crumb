@@ -10,8 +10,6 @@ import Icon from '../../assets/icons';
 import { useRouter } from 'expo-router';
 
 
-//Had dual imports of Auth here
-
 const Home = () => {
     const {user, setAuth} = useAuth();
     const router = useRouter();

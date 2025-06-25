@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Pressable, Alert } from 'react-native'
 import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
-import Home from '../assets/icons/Home';
 import { theme } from '../constants/theme'
 import Icon from '../assets/icons';
 import BackButton from '../components/BackButton';
@@ -9,33 +8,30 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {wp, hp} from '../helpers/common';
 import Input from '../components/Input';
-import { Button } from '@react-navigation/elements';
 import ButtonGen from '../components/ButtonGen';
 import { supabase } from '../lib/supabase';
-import { getUserData } from '../services/userService'; // Assuming this is imported for profile data fetch
-import { useAuth } from '../contexts/AuthContext'; // Assuming this is imported for setAuth
+import { getUserData } from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
     const router = useRouter();
-    const { setUserData } = useAuth(); // setUserData is available if needed, but _layout should handle setAuth
+    const { setAuth } = useAuth(); // Use setAuth instead of setUserData
     const emailRef = React.useRef("");
     const passwordRef = React.useRef("");
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
-        // 1. Basic Validation and early exit
+        // Basic Validation
         if(!emailRef.current || !passwordRef.current) {
-            Alert.alert(
-                "Error",
-                "Please fill in all fields"
-            );
-            return; // <--- IMPORTANT: Stop execution if validation fails
+            Alert.alert("Error", "Please fill in all fields");
+            return;
         }
         
         let email = emailRef.current.trim();
         let password = passwordRef.current.trim();
         
-        setLoading(true); // Start loading
+        console.log('Attempting login with:', email); // Debug log
+        setLoading(true);
 
         try {
             const {data: authData, error} = await supabase.auth.signInWithPassword({
@@ -43,29 +39,40 @@ const Login = () => {
                 password,
             });
 
+            console.log('Auth response:', { authData, error }); // Debug log
+
             if(error) {
-                console.error('Login Error:', error); // Use console.error for actual errors
+                console.error('Login Error:', error);
                 Alert.alert('Login Error', error.message);
-                return; // <--- IMPORTANT: Stop execution if login fails
+                setLoading(false); // Stop loading on error
+                return;
             }
 
-            // SUCCESS PATH:
-            // At this point, login was successful.
-            // The `_layout.jsx`'s `onAuthStateChange` listener will now be triggered.
-            // It is responsible for:
-            // 1. Fetching the complete user profile data from your database (if needed).
-            // 2. Calling setAuth() in your AuthContext with the full user object.
-            // 3. Navigating the user to the correct screen (e.g., '/home').
-            // Therefore, NO explicit navigation (router.push/replace/dismissAll)
-            // or setUserData calls are needed here in Login.jsx.
-
-            console.log('Login successful! Auth state change will handle navigation and user data.');
+            if(authData?.user) {
+                console.log('Login successful, fetching user data...');
+                
+                // Fetch complete user profile
+                let res = await getUserData(authData.user.id);
+                console.log('User data response:', res); // Debug log
+                
+                if(res.success) {
+                        // Set the complete user data in context
+                    setAuth(res.data);
+                    console.log('User data set, auth listener will handle navigation...');
+    
+                                // Remove this line - let the auth listener handle navigation
+                                // router.replace('/home');
+                }               else {
+                console.error('Failed to fetch user data:', res.msg);
+                Alert.alert('Error', 'Failed to load user profile');
+                }
+            }
 
         } catch (error) {
-            console.error('Unexpected Login error:', error); // Catch any unexpected JS errors
+            console.error('Unexpected Login error:', error);
             Alert.alert('Login Error', 'An unexpected error occurred during login.');
         } finally {
-            setLoading(false); // <--- Always stop loading, whether success or error (handled by try/catch)
+            setLoading(false); // Always stop loading
         }
     };
 
@@ -106,7 +113,7 @@ const Login = () => {
                                 <ButtonGen title='Login' loading={loading} onPress={onSubmit}/>
                             </View>
 
-                        {    /* footer goes here */}
+                        {/* footer goes here */}
                         <View style={styles.footer}>
                             <Text style={styles.footerText}>
                                 Don't have an account?
