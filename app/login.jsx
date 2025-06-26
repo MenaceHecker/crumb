@@ -15,66 +15,49 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
     const router = useRouter();
-    const { setAuth } = useAuth(); // Use setAuth instead of setUserData
+    const { setAuth, setUserData } = useAuth();
     const emailRef = React.useRef("");
     const passwordRef = React.useRef("");
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
-        // Basic Validation
-        if(!emailRef.current || !passwordRef.current) {
-            Alert.alert("Error", "Please fill in all fields");
+    // Basic Validation
+    if(!emailRef.current || !passwordRef.current) {
+        Alert.alert("Error", "Please fill in all fields");
+        return;
+    }
+    
+    let email = emailRef.current.trim();
+    let password = passwordRef.current.trim();
+    
+    console.log('Attempting login with:', email);
+    setLoading(true);
+
+    try {
+        const {data: authData, error} = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        console.log('Auth response:', { authData, error });
+
+        if(error) {
+            console.error('Login Error:', error);
+            Alert.alert('Login Error', error.message);
             return;
         }
-        
-        let email = emailRef.current.trim();
-        let password = passwordRef.current.trim();
-        
-        console.log('Attempting login with:', email); // Debug log
-        setLoading(true);
 
-        try {
-            const {data: authData, error} = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+        // Don't manually set auth or navigate here
+        // Let the auth listener in _layout handle everything
+        console.log('Login successful, auth listener will handle the rest...');
 
-            console.log('Auth response:', { authData, error }); // Debug log
-
-            if(error) {
-                console.error('Login Error:', error);
-                Alert.alert('Login Error', error.message);
-                setLoading(false); // Stop loading on error
-                return;
-            }
-
-            if(authData?.user) {
-                console.log('Login successful, fetching user data...');
-                
-                // Fetch complete user profile
-                let res = await getUserData(authData.user.id);
-                console.log('User data response:', res); // Debug log
-                
-                if(res.success) {
-                        // Set the complete user data in context
-                    setAuth(res.data);
-                    console.log('User data set, auth listener will handle navigation...');
-    
-                                // Remove this line - let the auth listener handle navigation
-                                // router.replace('/home');
-                }               else {
-                console.error('Failed to fetch user data:', res.msg);
-                Alert.alert('Error', 'Failed to load user profile');
-                }
-            }
-
-        } catch (error) {
-            console.error('Unexpected Login error:', error);
-            Alert.alert('Login Error', 'An unexpected error occurred during login.');
-        } finally {
-            setLoading(false); // Always stop loading
-        }
-    };
+    } catch (error) {
+        console.error('Unexpected Login error:', error);
+        Alert.alert('Login Error', 'An unexpected error occurred during login.');
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <ScreenWrapper bg = "white">

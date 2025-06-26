@@ -1,34 +1,117 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { ScrollView, StyleSheet, Text, View, TextInput } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
+import ScreenWrapper from '../../components/ScreenWrapper'
+import Header from '../../components/Header'
+import { theme } from '../../constants/theme'
+import { hp, wp } from '../../helpers/common'
+import Avatar from '../../components/Avatar'
+import { useAuth } from '../../contexts/AuthContext'
+import RichTextEditor from '../../components/RichTextEditor' 
+import { useRouter } from 'expo-router'
 
 const NewPost = () => {
-  console.log('NewPost component rendered');
-  
+  const {user} = useAuth();
+  const bodyRef = useRef("");
+  const editorRef = useRef(null);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
+  const [bodyText, setBodyText] = useState(""); 
+
+  // Add console logs to track rendering
+  console.log('NewPost component rendering...');
+  console.log('User data:', user);
+
+  useEffect(() => {
+    console.log('NewPost component mounted');
+    return () => {
+      console.log('NewPost component unmounted');
+    };
+  }, []);
+
+  const handleBodyChange = (body) => {
+    console.log('Body changed:', body);
+    bodyRef.current = body;
+    setBodyText(body);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Post - Test</Text>
-      <Text>Loading: {loading.toString()}</Text>
-      <Text>File: {file ? 'Has file' : 'No file'}</Text>
-    </View>
+    <ScreenWrapper bg="white">
+      <View style={styles.container}>
+        <Header title="Create Post" />
+        <ScrollView contentContainerStyle={{gap:20}}>
+          {/* avatar comes here */}
+          <View style={styles.header}>
+            <Avatar
+              uri={user?.image}
+              size={hp(6.5)}
+              rounded={theme.radius.xl}
+            />
+            <View style={{gap:2}}>
+              <Text style={styles.username}>
+                {user && user.name}
+              </Text>
+              <Text style={styles.publicText}>
+                Public
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.textEditor}>
+            <Text style={{marginBottom: 10, fontSize: 16}}>Debug: Using TextInput instead of RichTextEditor</Text>
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: theme.colors.gray,
+                borderRadius: theme.radius.md,
+                padding: 15,
+                minHeight: 150,
+                textAlignVertical: 'top'
+              }}
+              placeholder="What's on your mind?"
+              multiline
+              value={bodyText}
+              onChangeText={handleBodyChange}
+            />
+          </View>
+          {/* <View style={styles.textEditor}>
+            <RichTextEditor 
+              editorRef={editorRef} 
+              onChange={handleBodyChange}
+            />
+          </View> */}
+         
+        </ScrollView>
+      </View>
+    </ScreenWrapper>
   )
 }
 
 export default NewPost
 
 const styles = StyleSheet.create({
+  textEditor: {
+    // marginTop: 10,
+  },
+  publicText: {
+    fontSize: hp(1.7),
+    fontWeight: theme.fonts.medium,
+    color: theme.colors.textLight,
+  },
+  username: {
+    fontSize: hp(2.2),
+    fontWeight: theme.fonts.semibold,
+    color: theme.colors.text,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
+    paddingHorizontal: wp(4),
+    gap: 15
   }
 })

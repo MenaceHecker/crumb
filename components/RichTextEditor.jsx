@@ -1,50 +1,40 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import {RichToolbar, actions} from 'react-native-pell-rich-editor'
+import React, { useRef } from 'react'
+import {RichToolbar, RichEditor, actions} from 'react-native-pell-rich-editor'
 import { theme } from '../constants/theme'
 
 const RichTextEditor = ({
     editorRef,
     onChange
 }) => {
+  const richText = useRef();
+
   return (
-    <View style={{minHeight:285}}>
+    <View style={{minHeight: 285}}>
       <RichToolbar
         actions={[
-                actions.insertImage,
-                actions.setBold,
-                actions.setItalic,
-                actions.insertBulletsList,
-                actions.insertOrderedList,
-                actions.insertLink,
-                actions.keyboard,
-                actions.setStrikethrough,
-                actions.setUnderline,
-                actions.removeFormat,
-                actions.insertVideo,
-                actions.checkboxList,
-                actions.undo,
-                actions.redo,
-                actions.heading1,
-                actions.heading4
+          actions.setBold,
+          actions.setItalic,
+          actions.setUnderline,
+          actions.insertBulletsList,
+          actions.undo,
+          actions.redo,
         ]}
-        iconMap = {{
-            [actions.heading1] : ({tintColor}) => <Text style={{color: tintColor}}>H1</Text>,
-            [actions.heading1] : ({tintColor}) => <Text style={{color: tintColor}}>H4</Text>
+        style={styles.richBar}
+        selectedIconTint={theme.colors.primaryDark}
+        editor={editorRef || richText}
+      />
+      <RichEditor
+        ref={editorRef || richText}
+        style={styles.rich}
+        placeholder="What are you thinking?"
+        onChange={(text) => {
+          if (onChange) {
+            onChange(String(text || ''));
+          }
         }}
-        style = {styles.richBar}
-        flatContainerStyle = {styles.listStyle}
-        selectedIconTint = {theme.colors.primaryDark}
-        editor={editorRef}
-        disabled={false}
-        />
-        <RichTextEditor
-        ref={editorRef}
-        containerStyle={styles.rich}
-        editorStyle={styles.contentStyle}
-        placeholder={"What are be thinking"}
-        onChange={onChange}
-        />
+        initialContentHTML=""
+      />
     </View>
   )
 }
@@ -52,9 +42,18 @@ const RichTextEditor = ({
 export default RichTextEditor
 
 const styles = StyleSheet.create({
-    richBar : {
-        borderTopRightRadius: theme.radius.xl,
-        borderTopLeftRadius: theme.radius.xl,
-        backgroundColor: theme.colors.gray
-    }
+  richBar: {
+    borderTopRightRadius: theme.radius.xl,
+    borderTopLeftRadius: theme.radius.xl,
+    backgroundColor: theme.colors.gray,
+  },
+  rich: {
+    minHeight: 200,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: theme.radius.xl,
+    borderBottomRightRadius: theme.radius.xl,
+    borderColor: theme.colors.gray,
+    backgroundColor: 'white',
+  }
 })

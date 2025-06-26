@@ -41,7 +41,7 @@ const MainLayout = () => {
 
         if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') {
              console.log('Navigating to /home due to event:', _event);
-            router.replace('/home'); 
+            router.replace('/(main)/home'); 
         }
       } else {
         setAuth(null);
