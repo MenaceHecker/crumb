@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from '../../assets/icons'
 import Avatar from '../../components/Avatar'
 import ButtonGen from '../../components/ButtonGen'
@@ -135,6 +135,9 @@ const NewPost = () => {
                     <Image source={{uri: getSupabaseFileUri(file)}} resizeMode='cover' style={{flex: 1}} />
                   )
                 }
+                <Pressable style={styles.closeIcon} onPress={() => setFile(null)}>
+                  <Icon name="delete" size={20} color="white" />
+                </Pressable>
               </View>
             )
           }
@@ -222,6 +225,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+    padding: 7,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   fileImage: {
     width: '100%',
