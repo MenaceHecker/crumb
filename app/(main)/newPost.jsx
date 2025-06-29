@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from '../../assets/icons'
 import Avatar from '../../components/Avatar'
 import ButtonGen from '../../components/ButtonGen'
@@ -10,6 +10,7 @@ import ScreenWrapper from '../../components/ScreenWrapper'
 import { theme } from '../../constants/theme'
 import { useAuth } from '../../contexts/AuthContext'
 import { hp, wp } from '../../helpers/common'
+import { getSupabaseFileUrl } from '../../services/imageService'
 
 const NewPost = () => {
   const {user} = useAuth();
@@ -34,10 +35,35 @@ const NewPost = () => {
       }
     }
     let result = await ImagePicker.launchImageLibraryAsync({mediaConfig});
+    console.log('file:', result.assets[0]); 
     if(!result.canceled){
       setFile(result.assets[0]);
     }
 
+  }
+  const getSupabaseFileUri = file => {
+    if(!file) return null;
+    if(isLocalFile(file)){
+      return file.uri;
+    }
+    return getSupabaseFileUrl(file)?.uri;
+  }
+  const isLocalFile = file => {
+      if(!file) return null;
+      if(typeof file == 'object') return true;
+      return false;
+  }
+  const getFileType = file => {
+    if(!file) return null;
+    if(isLocalFile(file))
+    {
+      return file.type;
+    }
+    // gonna check for remote files as well the ones that are on the cloud
+    if(file.includes('postImage')){
+      return 'image';
+    }
+    return 'video';
   }
   const onSubmit = async () => {
 
@@ -99,6 +125,19 @@ const NewPost = () => {
               onChangeText={handleBodyChange}
             />
           </View>
+          {
+            file && (
+              <View style = {styles.file}>
+                {
+                  getFileType(file) == 'video'? (
+                    <></>
+                  ): (
+                    <Image source={{uri: getSupabaseFileUri(file)}} resizeMode='cover' style={{flex: 1}} />
+                  )
+                }
+              </View>
+            )
+          }
           {/* <View style={styles.textEditor}>
             <RichTextEditor 
               editorRef={editorRef} 
@@ -171,5 +210,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-  }
+  },
+  file: {
+    height: hp(30),
+    width: '100%',
+    borderRadius: theme.radius.xl,
+    overflow: 'hidden',
+    borderCurve: 'continuous'
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  fileImage: {
+    width: '100%',
+    height: '100%',
+  },
 })
