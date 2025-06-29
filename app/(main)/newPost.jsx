@@ -1,6 +1,8 @@
+import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import Icon from '../../assets/icons'
 import Avatar from '../../components/Avatar'
 import ButtonGen from '../../components/ButtonGen'
 import Header from '../../components/Header'
@@ -19,6 +21,25 @@ const NewPost = () => {
   const [bodyText, setBodyText] = useState(""); 
 
   const onPick = async (isImage) => {
+    let mediaConfig = {
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.7,
+    }
+    if(!isImage){
+      mediaConfig = {
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+      }
+    }
+    let result = await ImagePicker.launchImageLibraryAsync({mediaConfig});
+    if(!result.canceled){
+      setFile(result.assets[0]);
+    }
+
+  }
+  const onSubmit = async () => {
 
   }
 
@@ -101,7 +122,7 @@ const NewPost = () => {
         title='Post'
         loading={loading}
         hasShadow={false}
-        onPress={onsubmit}
+        onPress={onSubmit}
         />
       </View>
     </ScreenWrapper>
