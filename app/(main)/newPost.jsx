@@ -1,13 +1,12 @@
-import { ScrollView, StyleSheet, Text, View, TextInput } from 'react-native'
-import React, { useRef, useState, useEffect } from 'react'
-import ScreenWrapper from '../../components/ScreenWrapper'
-import Header from '../../components/Header'
-import { theme } from '../../constants/theme'
-import { hp, wp } from '../../helpers/common'
-import Avatar from '../../components/Avatar'
-import { useAuth } from '../../contexts/AuthContext'
-import RichTextEditor from '../../components/RichTextEditor' 
 import { useRouter } from 'expo-router'
+import { useEffect, useRef, useState } from 'react'
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import Avatar from '../../components/Avatar'
+import Header from '../../components/Header'
+import ScreenWrapper from '../../components/ScreenWrapper'
+import { theme } from '../../constants/theme'
+import { useAuth } from '../../contexts/AuthContext'
+import { hp, wp } from '../../helpers/common'
 
 const NewPost = () => {
   const {user} = useAuth();
