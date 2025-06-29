@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Avatar from '../../components/Avatar'
+import ButtonGen from '../../components/ButtonGen'
 import Header from '../../components/Header'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { theme } from '../../constants/theme'
@@ -16,6 +17,10 @@ const NewPost = () => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [bodyText, setBodyText] = useState(""); 
+
+  const onPick = async (isImage) => {
+
+  }
 
   // Add console logs to track rendering
   console.log('NewPost component rendering...');
@@ -79,8 +84,25 @@ const NewPost = () => {
               onChange={handleBodyChange}
             />
           </View> */}
-         
+         <View style={styles.media}>
+          <Text style={styles.addImageText}>Add to your post</Text>
+          <View style = {styles.mediaIcons}>
+            <TouchableOpacity onPress={() => onPick(true)}>
+              <Icon name="image" size={30} color={theme.colors.dark} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => onPick(false)}>
+              <Icon name="video" size={33} color={theme.colors.dark} />
+            </TouchableOpacity>
+          </View>
+         </View>
         </ScrollView>
+        <ButtonGen
+        buttonStyle={{height: hp(6.2)}}
+        title='Post'
+        loading={loading}
+        hasShadow={false}
+        onPress={onsubmit}
+        />
       </View>
     </ScreenWrapper>
   )
@@ -112,5 +134,21 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingHorizontal: wp(4),
     gap: 15
+  },
+  media: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    padding: 12,
+    paddingHorizontal: 18,
+    borderRadius: theme.radius.xl,
+    borderCurve: 'continuous',
+    borderColor: theme.colors.gray
+  },
+  mediaIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
   }
 })
