@@ -1,19 +1,29 @@
-import { Alert, StyleSheet, Text, View, Pressable } from 'react-native'
-import React from 'react'
+import { useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import Icon from '../../assets/icons'
 import ButtonGen from '../../components/ButtonGen'
 import ScreenWrapper from '../../components/ScreenWrapper'
-import { supabase } from '../../lib/supabase'
-import { useAuth } from "../../contexts/AuthContext"  
-import { wp, hp } from '../../helpers/common'
 import { theme } from '../../constants/theme'
-import Icon from '../../assets/icons'; 
-import { useRouter } from 'expo-router';
+import { useAuth } from "../../contexts/AuthContext"
+import { hp, wp } from '../../helpers/common'
+import { supabase } from '../../lib/supabase'
 
 
 const Home = () => {
     const {user, setAuth} = useAuth();
     const router = useRouter();
+    const [posts, setPosts] = useState([]);
     console.log('Home user: ', user);
+    useEffect(() => {
+        getPreEmitDiagnostics();
+    })
+    const getPosts = async ()=> {
+        //calling the api
+    }
+
+
+
 
     const onLogout = async () => {
         //setAuth(null);
@@ -22,6 +32,7 @@ const Home = () => {
             Alert.alert('Sign Out', error.message);
         }
     }
+ 
 
   return (
     <ScreenWrapper>
