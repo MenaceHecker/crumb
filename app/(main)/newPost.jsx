@@ -1,3 +1,4 @@
+import { Video } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
@@ -66,6 +67,17 @@ const NewPost = () => {
     return 'video';
   }
   const onSubmit = async () => {
+    if(!bodyRef.current && !file){
+      Alert.alert('Post', "Please choose an image or add post body");
+      return;
+    }
+    let data = {
+      file,
+      body: bodyRef.current,
+      userId: user?.id,
+    }
+
+  // create a post under work 
 
   }
 
@@ -130,7 +142,15 @@ const NewPost = () => {
               <View style = {styles.file}>
                 {
                   getFileType(file) == 'video'? (
-                    <></>
+                    <Video
+                    style = {{flex:1}}
+                    source = {{
+                      uri: getSupabaseFileUri(file)
+                    }}
+                    useNativeControls
+                    resizeMode='cover'
+                    isLooping
+                    />
                   ): (
                     <Image source={{uri: getSupabaseFileUri(file)}} resizeMode='cover' style={{flex: 1}} />
                   )
