@@ -34,3 +34,23 @@ export const createOrUpdatePost = async (post) => {
         return {success: false, msg: "Can't create your post"};
     }
 }
+export const fetchPosts = async (limit=10) => {
+    try {
+        const {data,error} = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', {ascending: false})
+        .limit(limit);
+
+        if(error){
+            console.log('FetchPost Error:', error);
+            return {success: false, msg: "Can't fetch your posts"};
+        }
+        
+        return {success: true, data: data};
+    }
+    catch(error) {
+        console.log('FetchPost Error:', error);
+        return {success: false, msg: "Can't fetch your posts"};
+    }
+}
