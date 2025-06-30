@@ -2,7 +2,7 @@ import { Video } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from '../../assets/icons'
 import Avatar from '../../components/Avatar'
 import ButtonGen from '../../components/ButtonGen'
@@ -12,9 +12,10 @@ import { theme } from '../../constants/theme'
 import { useAuth } from '../../contexts/AuthContext'
 import { hp, wp } from '../../helpers/common'
 import { getSupabaseFileUrl } from '../../services/imageService'
+import { createOrUpdatePost } from '../../services/postService'
 
 const NewPost = () => {
-  const {user} = useAuth();
+  const {user, setAuth} = useAuth();
   const bodyRef = useRef("");
   const editorRef = useRef(null);
   const router = useRouter();
@@ -23,25 +24,41 @@ const NewPost = () => {
   const [bodyText, setBodyText] = useState(""); 
 
   const onPick = async (isImage) => {
-    let mediaConfig = {
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 0.7,
-    }
-    if(!isImage){
-      mediaConfig = {
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
+    try {
+      // Request permissions first
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant permission to access your media library');
+        return;
       }
-    }
-    let result = await ImagePicker.launchImageLibraryAsync({mediaConfig});
-    console.log('file:', result.assets[0]); 
-    if(!result.canceled){
-      setFile(result.assets[0]);
-    }
 
+      let mediaConfig = {
+        mediaTypes: isImage ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        quality: 0.7,
+      }
+      
+      if(isImage) {
+        mediaConfig.aspect = [4, 3];
+      } else {
+        // For videos, you might want to set additional options
+        mediaConfig.videoMaxDuration = 60; // 60 seconds max
+      }
+
+      console.log('Launching image picker with config:', mediaConfig);
+      let result = await ImagePicker.launchImageLibraryAsync(mediaConfig);
+      console.log('ImagePicker result:', result);
+      
+      if(!result.canceled && result.assets && result.assets[0]){
+        console.log('Selected file:', result.assets[0]);
+        setFile(result.assets[0]);
+      }
+    } catch (error) {
+      console.log('ImagePicker error:', error);
+      Alert.alert('Error', 'Failed to pick media');
+    }
   }
+
   const getSupabaseFileUri = file => {
     if(!file) return null;
     if(isLocalFile(file)){
@@ -49,16 +66,30 @@ const NewPost = () => {
     }
     return getSupabaseFileUrl(file)?.uri;
   }
+
   const isLocalFile = file => {
       if(!file) return null;
       if(typeof file == 'object') return true;
       return false;
   }
+
   const getFileType = file => {
     if(!file) return null;
-    if(isLocalFile(file))
-    {
-      return file.type;
+    if(isLocalFile(file)) {
+      // Check the mimeType or type property
+      if(file.type) {
+        return file.type.startsWith('image/') ? 'image' : 'video';
+      }
+      // Fallback to checking file extension
+      if(file.uri) {
+        const extension = file.uri.split('.').pop()?.toLowerCase();
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+        
+        if(imageExtensions.includes(extension)) return 'image';
+        if(videoExtensions.includes(extension)) return 'video';
+      }
+      return file.type || 'image'; // default fallback
     }
     // gonna check for remote files as well the ones that are on the cloud
     if(file.includes('postImage')){
@@ -66,22 +97,35 @@ const NewPost = () => {
     }
     return 'video';
   }
+
   const onSubmit = async () => {
     if(!bodyRef.current && !file){
       Alert.alert('Post', "Please choose an image or add post body");
       return;
     }
+    
     let data = {
       file,
       body: bodyRef.current,
       userId: user?.id,
     }
 
-  // create a post under work 
-
+    // create a post under work 
+    setLoading(true);
+    let res = await createOrUpdatePost(data);
+    setLoading(false);    
+    if(res.success) {
+      Alert.alert('Success', 'Post created successfully!');
+      setFile(null);
+      bodyRef.current='';
+      editorRef.current?.setContentHTML('');
+      router.back();
+    } else {
+      // Error - show error message
+      Alert.alert('Error', res?.msg || 'Failed to create post');
+    }
   }
 
-  // Add console logs to track rendering
   console.log('NewPost component rendering...');
   console.log('User data:', user);
 
@@ -161,12 +205,6 @@ const NewPost = () => {
               </View>
             )
           }
-          {/* <View style={styles.textEditor}>
-            <RichTextEditor 
-              editorRef={editorRef} 
-              onChange={handleBodyChange}
-            />
-          </View> */}
          <View style={styles.media}>
           <Text style={styles.addImageText}>Add to your post</Text>
           <View style = {styles.mediaIcons}>
