@@ -35,7 +35,7 @@ This is a social media application built with **React Native** for a seamless cr
     ```
 4.  **Run the app on Android/iPhone in case QR code via npm start does not work:**
     ```bash
-    npx expo start --tunnel #This runs the dev server with your local IPv4 address
+    npx expo start --tunnel #This runs the dev server with your local IPv4 address (Trying to fix this issue)
     
     ``` 
 
