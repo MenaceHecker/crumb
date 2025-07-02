@@ -8,8 +8,9 @@ import { theme } from '../../constants/theme'
 import { useAuth } from "../../contexts/AuthContext"
 import { hp, wp } from '../../helpers/common'
 import { supabase } from '../../lib/supabase'
+import { fetchPosts } from '../../services/postService'
 
-
+var limit = 0;
 const Home = () => {
     const {user, setAuth} = useAuth();
     const router = useRouter();
@@ -17,9 +18,16 @@ const Home = () => {
     console.log('Home user: ', user);
     useEffect(() => {
         getPreEmitDiagnostics();
-    })
+        getPosts();
+    }, []);
     const getPosts = async ()=> {
         //calling the api
+        limi = limit + 10;
+        console.log('fetching posts: ', limit);
+        let res = await fetchPosts(limit);
+        if(res.success){
+            setPosts(res.data);
+        }
     }
 
 
