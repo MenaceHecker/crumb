@@ -23,18 +23,21 @@ const MainLayout = () => {
       console.log('Auth Event:', _event);
 
       if (session) {
+        console.log('Session exists, using basic user data...');
         const userBasic = session.user;
-        const res = await getUserData(userBasic?.id);
-        const mergedUser = res.success ? { ...userBasic, ...res.data } : userBasic;
-        setAuth(mergedUser);
-        setUserData(mergedUser);
+        
+        // Skip getUserData for now to test if navigation works
+        setAuth(userBasic);
+        setUserData(userBasic);
 
         if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') {
+          console.log('Navigating to home...');
           setTimeout(() => {
             router.replace('/(main)/home');
           }, 100);
         }
       } else {
+        console.log('No session, clearing auth...');
         setAuth(null);
         setUserData(null);
         setTimeout(() => {
@@ -44,6 +47,7 @@ const MainLayout = () => {
     });
 
     return () => {
+      console.log('Unsubscribing auth listener...');
       authListener?.subscription?.unsubscribe();
     };
   }, []);

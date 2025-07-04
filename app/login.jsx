@@ -21,43 +21,59 @@ const Login = () => {
     const [loading, setLoading] = React.useState(false);
 
     const onSubmit = async() => {
-    // Basic Validation
-    if(!emailRef.current || !passwordRef.current) {
-        Alert.alert("Error", "Please fill in all fields");
-        return;
-    }
-    
-    let email = emailRef.current.trim();
-    let password = passwordRef.current.trim();
-    
-    console.log('Attempting login with:', email);
-    setLoading(true);
-
-    try {
-        const {data: authData, error} = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        console.log('Auth response:', { authData, error });
-
-        if(error) {
-            console.error('Login Error:', error);
-            Alert.alert('Login Error', error.message);
+        // Basic Validation
+        if(!emailRef.current || !passwordRef.current) {
+            Alert.alert("Error", "Please fill in all fields");
             return;
         }
+        
+        let email = emailRef.current.trim();
+        let password = passwordRef.current.trim();
+        
+        console.log('Attempting login with:', email);
+        setLoading(true);
 
-        // Don't manually set auth or navigate here
-        // Let the auth listener in _layout handle everything
-        console.log('Login successful, auth listener will handle the rest...');
+        // Safety timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            console.log('Login timeout reached, stopping loading...');
+            setLoading(false);
+        }, 10000); // 10 second timeout
 
-    } catch (error) {
-        console.error('Unexpected Login error:', error);
-        Alert.alert('Login Error', 'An unexpected error occurred during login.');
-    } finally {
-        setLoading(false);
-    }
-};
+        try {
+            const {data: authData, error} = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            console.log('Auth response:', { authData, error });
+
+            if(error) {
+                console.error('Login Error:', error);
+                Alert.alert('Login Error', error.message);
+                clearTimeout(timeoutId);
+                setLoading(false);
+                return;
+            }
+
+            // Clear timeout since login was successful
+            clearTimeout(timeoutId);
+            
+            // Don't manually set auth or navigate here
+            // Let the auth listener in _layout handle everything
+            console.log('Login successful, auth listener will handle the rest...');
+
+            // Set loading to false after a short delay to allow auth listener to process
+            setTimeout(() => {
+                setLoading(false);
+            }, 2000); // 2 second delay
+
+        } catch (error) {
+            console.error('Unexpected Login error:', error);
+            Alert.alert('Login Error', 'An unexpected error occurred during login.');
+            clearTimeout(timeoutId);
+            setLoading(false);
+        }
+    };
 
     return (
         <ScreenWrapper bg = "white">

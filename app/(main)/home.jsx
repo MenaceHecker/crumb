@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import Icon from '../../assets/icons'
 import ButtonGen from '../../components/ButtonGen'
 import ScreenWrapper from '../../components/ScreenWrapper'
@@ -9,6 +9,7 @@ import { useAuth } from "../../contexts/AuthContext"
 import { hp, wp } from '../../helpers/common'
 import { supabase } from '../../lib/supabase'
 import { fetchPosts } from '../../services/postService'
+import PostCard from '../../components/PostCard'
 
 var limit = 0;
 const Home = () => {
@@ -17,7 +18,6 @@ const Home = () => {
     const [posts, setPosts] = useState([]);
     console.log('Home user: ', user);
     useEffect(() => {
-        getPreEmitDiagnostics();
         getPosts();
     }, []);
     const getPosts = async ()=> {
@@ -57,11 +57,30 @@ const Home = () => {
                 </Pressable>
                 <Pressable onPress={() => router.push('/profile')}>
                     <Icon name = "user" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                    {/* <Avatar
+                    uri={user?.image}
+                    size={hp(4.3)}
+                    rounded={theme.radius.sm}
+                    style={{borderWidth: 2}}
+                    /> */}
                 </Pressable>
             </View>
             </View>
+            {/* post  */}
+            <FlatList
+            data={posts}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listStyle}
+            keyExtractor={(item => item.id.toString())}
+            renderItem={({items}) => <PostCard
+                item={items}
+                currentUser={user}
+                router={router}
+                />
+        }
+        />
       </View>
-      <ButtonGen title='Logout' onPress={onLogout} />
+      {/* <ButtonGen title='Logout' onPress={onLogout} /> */}
     </ScreenWrapper>
   )
 }
