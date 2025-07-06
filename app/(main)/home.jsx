@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import Icon from '../../assets/icons'
+import Loading from '../../components/Loading'
 import PostCard from '../../components/PostCard'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { theme } from '../../constants/theme'
@@ -77,6 +78,12 @@ const Home = () => {
                 router={router}
                 />
         }
+        ListFooterComponent={(
+            <View style={{marginVertical: 30}}>
+                <Loading />
+            </View>
+
+        )}
         />
       </View>
       {/* <ButtonGen title='Logout' onPress={onLogout} /> */}

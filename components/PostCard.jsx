@@ -96,13 +96,28 @@ const PostCard = ({
     <View style={styles.footer}>
       <View style={styles.footerButton}>
         <TouchableOpacity>
-          <Icon name = "heart" size = {24} color = {liked? theme.colors.rose : theme.colors.textLight} />
+          <Icon name = "heart" size = {24} fill={liked? theme.colors.rose : 'transparent'} color = {liked? theme.colors.rose : theme.colors.textLight} />
         </TouchableOpacity>
         <Text style = {styles.count}>
           {
-            
+            likes?.length
           }
         </Text>
+      </View>
+      <View style={styles.footerButton}>
+        <TouchableOpacity>
+          <Icon name = "comment" size = {24} color = {theme.colors.textLight} />
+        </TouchableOpacity>
+        <Text style = {styles.count}>
+          {
+            0
+          }
+        </Text>
+      </View>
+      <View style={styles.footerButton}>
+        <TouchableOpacity>
+          <Icon name = "share" size = {24} color = {theme.colors.textLight} />
+        </TouchableOpacity>
       </View>
     </View>
     </View>
