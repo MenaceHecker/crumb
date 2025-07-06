@@ -2,14 +2,13 @@ import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import Icon from '../../assets/icons'
-import ButtonGen from '../../components/ButtonGen'
+import PostCard from '../../components/PostCard'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { theme } from '../../constants/theme'
 import { useAuth } from "../../contexts/AuthContext"
 import { hp, wp } from '../../helpers/common'
 import { supabase } from '../../lib/supabase'
 import { fetchPosts } from '../../services/postService'
-import PostCard from '../../components/PostCard'
 
 var limit = 0;
 const Home = () => {
@@ -22,7 +21,7 @@ const Home = () => {
     }, []);
     const getPosts = async ()=> {
         //calling the api
-        limi = limit + 10;
+        limit = limit + 10;
         console.log('fetching posts: ', limit);
         let res = await fetchPosts(limit);
         if(res.success){
@@ -72,8 +71,8 @@ const Home = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listStyle}
             keyExtractor={(item => item.id.toString())}
-            renderItem={({items}) => <PostCard
-                item={items}
+            renderItem={({item}) => <PostCard
+                item={item}
                 currentUser={user}
                 router={router}
                 />

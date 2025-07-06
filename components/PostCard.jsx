@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
+import Avatar from '../components/Avatar'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 
