@@ -31,5 +31,24 @@ const styles = StyleSheet.create({
   count: {
     color: theme.colors.text,
     fontSize: hp(1.8),
+  },
+  postBody: {
+    marginLeft: 5,
+  },
+  footer: {
+    flexDirection: 'row',
+    aklignItems: 'center',
+    gap: 15,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 18,
+  },
+  footerButton: {
+    marginLeft: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4
   }
 })
