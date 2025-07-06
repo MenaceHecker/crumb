@@ -1,4 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native'
+import moment from 'moment'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Icon from '../assets/icons'
 import Avatar from '../components/Avatar'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
@@ -14,10 +16,19 @@ const PostCard = ({
       width: 0,
       height: 2
     },
-    shadowOpactiy: 0.06,
+    shadowOpacity: 0.06, // Fixed: was 'shadowOpactiy'
     shadowRadius: 6,
     elevation: 1
     }
+    const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
+    const openPostDetails = () => { //not implement now 
+    };
+    
+    // Debug logs to check data structure
+    console.log('PostCard item:', item);
+    console.log('PostCard user:', item?.user);
+    console.log('PostCard username:', item?.user?.name);
+    
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
@@ -29,11 +40,23 @@ const PostCard = ({
             rounded={theme.radius.md}
             />
             <View style = {{gap: 2}}>
-              <Text style={styles.username}>{item?.user?.name}</Text>
-              <Text style={styles.postTime}>{item?.created_at}</Text>
+              <Text style={styles.username}>
+                {item?.user?.name || item?.users?.name || 'Unknown User'}
+              </Text>
+              <Text style={styles.postTime}>{createdAt}</Text>
             </View>
         </View>
+        <TouchableOpacity onPress={openPostDetails}>
+          <Icon name="threeDotsHorizontal" size={hp(3.4)} strokeWidth={3} color={theme.colors.text} />
+        </TouchableOpacity>
       </View>
+      
+      {/* Add post content if it exists */}
+      {item?.body && (
+        <View style={styles.content}>
+          <Text style={styles.postBody}>{item.body}</Text>
+        </View>
+      )}
     </View>
   )
 }
@@ -47,10 +70,12 @@ const styles = StyleSheet.create({
   },
   postBody: {
     marginLeft: 5,
+    fontSize: hp(1.8),
+    color: theme.colors.text,
   },
   footer: {
     flexDirection: 'row',
-    aklignItems: 'center',
+    alignItems: 'center', // Fixed: was 'aklignItems'
     gap: 15,
   },
   actions: {
@@ -96,7 +121,7 @@ const styles = StyleSheet.create({
   },
   postMedia: {
     height: hp(40),
-    wdth: '100%',
+    width: '100%', // Fixed: was 'wdth'
     borderRadius: theme.radius.xl,
     borderCurve: 'continuous',
   },
