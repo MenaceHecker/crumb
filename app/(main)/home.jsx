@@ -16,9 +16,20 @@ const Home = () => {
     const {user, setAuth} = useAuth();
     const router = useRouter();
     const [posts, setPosts] = useState([]);
+    const handlePostEvent = async (payload) => {
+        console.log('got post event: ', payload);
+    }
     console.log('Home user: ', user);
     useEffect(() => {
+        let postChannel = supabase
+        .channel('posts')
+        .on('postgres_changes', {event: '*', schema: 'public', table: 'posts'}, handlePostEvent) 
+        .subscribe();
+
         getPosts();
+        return () => {
+            supabase.removeChannel(postChannel);
+        }
     }, []);
     const getPosts = async ()=> {
         //calling the api
@@ -79,7 +90,7 @@ const Home = () => {
                 />
         }
         ListFooterComponent={(
-            <View style={{marginVertical: 30}}>
+            <View style={{marginVertical: posts.length==0? 200:30}}>
                 <Loading />
             </View>
 
