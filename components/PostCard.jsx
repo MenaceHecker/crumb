@@ -1,9 +1,12 @@
+import { Video } from 'expo-av'
+import { Image } from 'expo-image'
 import moment from 'moment'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from '../assets/icons'
 import Avatar from '../components/Avatar'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
+import { getSupabaseFileUrl } from '../services/imageService'
 
 const PostCard = ({
     item,
@@ -16,7 +19,7 @@ const PostCard = ({
       width: 0,
       height: 2
     },
-    shadowOpacity: 0.06, // Fixed: was 'shadowOpactiy'
+    shadowOpacity: 0.06,  
     shadowRadius: 6,
     elevation: 1
     }
@@ -28,6 +31,12 @@ const PostCard = ({
     console.log('PostCard item:', item);
     console.log('PostCard user:', item?.user);
     console.log('PostCard username:', item?.user?.name);
+    
+    // Helper function to get proper URI
+    const getMediaUri = (file) => {
+      const result = getSupabaseFileUrl(file);
+      return result?.uri || result; // Handle both object and string returns
+    };
     
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
@@ -57,6 +66,29 @@ const PostCard = ({
           <Text style={styles.postBody}>{item.body}</Text>
         </View>
       )}
+      
+      {/* Media content - moved outside of body check */}
+      {item?.file && item?.file?.includes('postImages') && (
+        <Image
+          source={getSupabaseFileUrl(item?.file)}
+          transition={100}
+          style={styles.postMedia}
+          contentFit='cover'
+        />
+      )}
+      
+      {/* Video content */}
+      {item?.file && item?.file?.includes('postVideos') && (
+        <Video
+          style={[styles.postMedia, {height: hp(30)}]}
+          source={{ uri: getMediaUri(item?.file) }}
+          useNativeControls
+          resizeMode='cover'
+          isLooping
+          shouldPlay={false}
+          onError={(error) => console.log('Video error:', error)}
+        />
+      )}
     </View>
   )
 }
@@ -75,7 +107,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: 'row',
-    alignItems: 'center', // Fixed: was 'aklignItems'
+    alignItems: 'center',
     gap: 15,
   },
   actions: {
@@ -112,7 +144,6 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 10,
-    //marginBottom: 10,
   },
   username: {
     fontSize: hp(1.7),
@@ -121,7 +152,7 @@ const styles = StyleSheet.create({
   },
   postMedia: {
     height: hp(40),
-    width: '100%', // Fixed: was 'wdth'
+    width: '100%',
     borderRadius: theme.radius.xl,
     borderCurve: 'continuous',
   },
