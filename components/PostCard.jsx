@@ -24,6 +24,8 @@ const PostCard = ({
     elevation: 1
     }
     const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
+    const liked = false;
+    const likes = [];
     const openPostDetails = () => { //not implement now 
     };
     
@@ -89,7 +91,22 @@ const PostCard = ({
           onError={(error) => console.log('Video error:', error)}
         />
       )}
+
+      { /* like,comment, share goes here */}
+    <View style={styles.footer}>
+      <View style={styles.footerButton}>
+        <TouchableOpacity>
+          <Icon name = "heart" size = {24} color = {liked? theme.colors.rose : theme.colors.textLight} />
+        </TouchableOpacity>
+        <Text style = {styles.count}>
+          {
+            
+          }
+        </Text>
+      </View>
     </View>
+    </View>
+    
   )
 }
 
