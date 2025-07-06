@@ -19,8 +19,10 @@ const PostCard = ({
     elevation: 1
     }
   return (
-    <View>
-      <Text>PostCard</Text>
+    <View style={[styles.container, hasShadow && shadowStyles]}>
+      <View style={styles.header}>
+        {/*user info and post time goes here */}
+      </View>
     </View>
   )
 }
