@@ -12,117 +12,174 @@ import { supabase } from '../../lib/supabase'
 import { fetchPosts } from '../../services/postService'
 
 var limit = 0;
+
+// Add this function to fetch user data
+const getUserData = async (userId) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        
+        if (error) {
+            console.log('Error fetching user data:', error);
+            return { success: false, msg: error.message };
+        }
+        
+        return { success: true, data };
+    } catch (error) {
+        console.log('Error fetching user data:', error);
+        return { success: false, msg: error.message };
+    }
+};
+
 const Home = () => {
     const {user, setAuth} = useAuth();
     const router = useRouter();
     const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const handlePostEvent = async (payload) => {
-        console.log('got post event: ', payload);
-    }
+        console.log('Post event received:', payload);
+        
+        if(payload.eventType === 'INSERT' && payload?.new?.id) {
+            let newPost = {...payload.new};
+            let res = await getUserData(newPost.userId);
+            newPost.user = res.success ? res.data : {};
+            
+            // Add the new post to the beginning of the array
+            setPosts(prevPosts => [newPost, ...prevPosts]);
+        }
+        
+        // Handle UPDATE events
+        if(payload.eventType === 'UPDATE' && payload?.new?.id) {
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post.id === payload.new.id ? {...post, ...payload.new} : post
+                )
+            );
+        }
+        
+        // Handle DELETE events
+        if(payload.eventType === 'DELETE' && payload?.old?.id) {
+            setPosts(prevPosts => 
+                prevPosts.filter(post => post.id !== payload.old.id)
+            );
+        }
+    };
+
     console.log('Home user: ', user);
+    
     useEffect(() => {
         let postChannel = supabase
-        .channel('posts')
-        .on('postgres_changes', {event: '*', schema: 'public', table: 'posts'}, handlePostEvent) 
-        .subscribe();
+            .channel('posts')
+            .on('postgres_changes', {
+                event: '*', 
+                schema: 'public', 
+                table: 'posts'
+            }, handlePostEvent)
+            .subscribe();
 
         getPosts();
+        
         return () => {
             supabase.removeChannel(postChannel);
         }
     }, []);
-    const getPosts = async ()=> {
-        //calling the api
-        limit = limit + 10;
-        console.log('fetching posts: ', limit);
-        let res = await fetchPosts(limit);
-        if(res.success){
-            setPosts(res.data);
+
+    const getPosts = async () => {
+        try {
+            setLoading(true);
+            limit = limit + 10;
+            console.log('fetching posts: ', limit);
+            let res = await fetchPosts(limit);
+            if(res.success) {
+                setPosts(res.data);
+            }
+        } catch (error) {
+            console.log('Error fetching posts:', error);
+        } finally {
+            setLoading(false);
         }
-    }
-
-
-
+    };
 
     const onLogout = async () => {
-        //setAuth(null);
         const {error} = await supabase.auth.signOut();
         if (error) {
             Alert.alert('Sign Out', error.message);
         }
-    }
- 
+    };
 
-  return (
-    <ScreenWrapper>
-      <View style={styles.container}>
-        {/* header goes here now */}
-        <View style={styles.header}>
-            <Text style={styles.title}>Joe!?</Text>
-            <View style = {styles.icons}>
-                <Pressable onPress={() => router.push('/notifications')}>
-                    <Icon name = "heart" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
-                </Pressable>
-                <Pressable onPress={() => router.push('/newPost')}>
-                    <Icon name = "plus" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
-                </Pressable>
-                <Pressable onPress={() => router.push('/profile')}>
-                    <Icon name = "user" size ={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
-                    {/* <Avatar
-                    uri={user?.image}
-                    size={hp(4.3)}
-                    rounded={theme.radius.sm}
-                    style={{borderWidth: 2}}
-                    /> */}
-                </Pressable>
-            </View>
-            </View>
-            {/* post  */}
-            <FlatList
-            data={posts}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listStyle}
-            keyExtractor={(item => item.id.toString())}
-            renderItem={({item}) => <PostCard
-                item={item}
-                currentUser={user}
-                router={router}
+    return (
+        <ScreenWrapper>
+            <View style={styles.container}>
+                {/* header goes here now */}
+                <View style={styles.header}>
+                    <Text style={styles.title}>Joe!?</Text>
+                    <View style={styles.icons}>
+                        <Pressable onPress={() => router.push('/notifications')}>
+                            <Icon name="heart" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                        </Pressable>
+                        <Pressable onPress={() => router.push('/newPost')}>
+                            <Icon name="plus" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                        </Pressable>
+                        <Pressable onPress={() => router.push('/profile')}>
+                            <Icon name="user" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                        </Pressable>
+                    </View>
+                </View>
+                
+                {/* posts */}
+                <FlatList
+                    data={posts}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listStyle}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({item}) => (
+                        <PostCard
+                            item={item}
+                            currentUser={user}
+                            router={router}
+                        />
+                    )}
+                    ListFooterComponent={() => (
+                        <View style={{marginVertical: posts.length === 0 ? 200 : 30}}>
+                            {loading && <Loading />}
+                        </View>
+                    )}
+                    ListEmptyComponent={() => (
+                        !loading && (
+                            <View style={{marginTop: 200}}>
+                                <Text style={styles.noPosts}>No posts yet</Text>
+                            </View>
+                        )
+                    )}
                 />
-        }
-        ListFooterComponent={(
-            <View style={{marginVertical: posts.length==0? 200:30}}>
-                <Loading />
             </View>
+        </ScreenWrapper>
+    );
+};
 
-        )}
-        />
-      </View>
-      {/* <ButtonGen title='Logout' onPress={onLogout} /> */}
-    </ScreenWrapper>
-  )
-}
-
-export default Home
+export default Home;
 
 const styles = StyleSheet.create({
-    container : {
-        flex : 1,
-        // paddingHorizontal: wp(4)
+    container: {
+        flex: 1,
     },
-    header : {
+    header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 20,
         marginHorizontal: wp(4),
     },
-    title : {
+    title: {
         color: theme.colors.text,
         fontSize: hp(3.2),
         fontWeight: theme.fonts.bold,
-    
-},
-    avatarImage : {
+    },
+    avatarImage: {
         height: hp(4.3),
         width: hp(4.3),
         borderRadius: theme.radius.sm,
@@ -145,7 +202,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: theme.colors.text
     },
-    pill:{
+    pill: {
         position: 'absolute',
         right: -10,
         top: -4,
@@ -161,4 +218,4 @@ const styles = StyleSheet.create({
         fontSize: hp(1.2),
         fontWeight: theme.fonts.bold
     }
-    })
+});
