@@ -38,6 +38,9 @@ This is a social media application built with **React Native** for a seamless cr
     npx expo start --tunnel #This runs the dev server with your local IPv4 address (Trying to fix this issue)
     
     ``` 
+5.  **When pushing updates, push it to both expo server as well as git else the app crashes**
+    ```bash
+    neas update --branch main --message "The_Message" #This runs the dev server with your local IPv4 address (Trying to fix this)
 
 ---
 
