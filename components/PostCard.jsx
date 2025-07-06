@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import {hp, wp} from '../helpers/common'
-import { theme } from '../theme/theme'
+import { theme } from '../constants/theme'
+import { hp } from '../helpers/common'
 
 const PostCard = ({
     item,
@@ -22,6 +21,17 @@ const PostCard = ({
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
         {/*user info and post time goes here */}
+        <View style={styles.userInfo}>
+          <Avatar
+            size={hp(4.5)}
+            uri={item?.user?.image}
+            rounded={theme.radius.md}
+            />
+            <View style = {{gap: 2}}>
+              <Text style={styles.username}>{item?.user?.name}</Text>
+              <Text style={styles.postTime}>{item?.created_at}</Text>
+            </View>
+        </View>
       </View>
     </View>
   )
