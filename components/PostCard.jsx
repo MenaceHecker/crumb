@@ -50,5 +50,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4
-  }
+  },
+  container: {
+    gap: 10,
+    marginBottom: 15,
+    borderRadius: theme.radius.xxl*1.1,
+    borderCurve: 'continuous',
+    padding: 10,
+    paddingVertical: 12,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderColor: theme.colors.gray,
+    shadowColor: '#000',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  content: {
+    gap: 10,
+    //marginBottom: 10,
+  },
+  username: {
+    fontSize: hp(1.7),
+    color: theme.colors.textDark,
+    fontWeight: theme.fonts.medium,
+  },
+  postMedia: {
+    height: hp(40),
+    wdth: '100%',
+    borderRadius: theme.radius.xl,
+    borderCurve: 'continuous',
+  },
+  postTime: {
+    fontSize: hp(1.4),
+    color: theme.colors.textLight,
+    fontWeight: theme.fonts.medium,
+  },
 })
