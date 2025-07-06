@@ -74,29 +74,29 @@ const NewPost = () => {
   }
 
   const getFileType = file => {
-    if(!file) return null;
-    if(isLocalFile(file)) {
-      // Check the mimeType or type property
-      if(file.type) {
-        return file.type.startsWith('image/') ? 'image' : 'video';
-      }
-      // Fallback to checking file extension
-      if(file.uri) {
-        const extension = file.uri.split('.').pop()?.toLowerCase();
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
-        
-        if(imageExtensions.includes(extension)) return 'image';
-        if(videoExtensions.includes(extension)) return 'video';
-      }
-      return file.type || 'image'; // default fallback
+  if(!file) return null;
+  if(isLocalFile(file)) {
+    // Check the mimeType property (not type)
+    if(file.mimeType) {
+      return file.mimeType.startsWith('image/') ? 'image' : 'video';
     }
-    // gonna check for remote files as well the ones that are on the cloud
-    if(file.includes('postImage')){
-      return 'image';
+    // Fallback to checking file extension
+    if(file.uri) {
+      const extension = file.uri.split('.').pop()?.toLowerCase();
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+      
+      if(imageExtensions.includes(extension)) return 'image';
+      if(videoExtensions.includes(extension)) return 'video';
     }
-    return 'video';
+    return 'image'; // default fallback to image instead of file.type
   }
+  // gonna check for remote files as well the ones that are on the cloud
+  if(file.includes('postImage')){
+    return 'image';
+  }
+  return 'video';
+}
 
   const onSubmit = async () => {
     if(!bodyRef.current && !file){
