@@ -13,7 +13,6 @@ import { fetchPosts } from '../../services/postService'
 
 var limit = 0;
 
-// Add this function to fetch user data
 const getUserData = async (userId) => {
     try {
         const { data, error } = await supabase
@@ -143,6 +142,9 @@ const Home = () => {
                             router={router}
                         />
                     )}
+                    onEndReached={() => {
+                        console.log('End reached here');
+                    }}
                     ListFooterComponent={() => (
                         <View style={{marginVertical: posts.length === 0 ? 200 : 30}}>
                             {loading && <Loading />}
