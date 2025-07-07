@@ -38,6 +38,7 @@ const Home = () => {
     const router = useRouter();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [hasMore, setHasMore] = useState(true);
 
     const handlePostEvent = async (payload) => {
         console.log('Post event received:', payload);
@@ -80,7 +81,7 @@ const Home = () => {
             }, handlePostEvent)
             .subscribe();
 
-        getPosts();
+        // getPosts();
         
         return () => {
             supabase.removeChannel(postChannel);
@@ -90,10 +91,11 @@ const Home = () => {
     const getPosts = async () => {
         try {
             setLoading(true);
-            limit = limit + 10;
-            console.log('fetching posts: ', limit);
+            if(!hasMore) return null;
+            limit = limit + 4;
             let res = await fetchPosts(limit);
             if(res.success) {
+                if(posts.length == res.data.length) setHasMore(false);
                 setPosts(res.data);
             }
         } catch (error) {
@@ -143,7 +145,7 @@ const Home = () => {
                         />
                     )}
                     onEndReached={() => {
-                        console.log('End reached here');
+                        getPosts();
                     }}
                     ListFooterComponent={() => (
                         <View style={{marginVertical: posts.length === 0 ? 200 : 30}}>
