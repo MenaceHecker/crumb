@@ -16,6 +16,7 @@ const PostCard = ({
     currentUser,
     router,
     hasShadow = true,
+    showMoreIcon = true,
 }) => {
   const shadowStyles = {
     shadowOffset: {
@@ -34,7 +35,7 @@ const PostCard = ({
         setLikes(item?.postLikes);
     }, [])
     const openPostDetails = () => { 
-      // if(!showMoreIcon) return null;
+      if(!showMoreIcon) return null;
       router.push({pathname: 'postDetails' , params: {postId: item?.id}});
     };
     
@@ -109,9 +110,15 @@ const PostCard = ({
               <Text style={styles.postTime}>{createdAt}</Text>
             </View>
         </View>
-        <TouchableOpacity onPress={openPostDetails}>
+        {
+          showMoreIcon && (
+            <TouchableOpacity onPress={openPostDetails}>
           <Icon name="threeDotsHorizontal" size={hp(3.4)} strokeWidth={3} color={theme.colors.text} />
         </TouchableOpacity>
+          )
+        }
+
+        
       </View>
       
       {/* Add post content if it exists */}

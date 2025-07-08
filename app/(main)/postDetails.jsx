@@ -1,6 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import Icon from '../../assets/icons';
+import Input from '../../components/Input';
 import Loading from '../../components/Loading';
 import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
@@ -14,6 +16,8 @@ const PostDetails = () => {
     const {user}  = useAuth();
     const router = useRouter();
     const [startLoading, setStartLoading] = useState(true);
+    const inputRef = useRef(null);
+    const commentRef = useRef('');
     
     useEffect(() => {
         getPostDetails(); // Call the function here
@@ -42,7 +46,21 @@ const PostDetails = () => {
             currentUser={user}
             router={router}
             hasShadow={false}
+            showMoreIcon = {false}
             />
+            {/*commenting the input */}
+            <View style={styles.inputContainer}>
+                <Input
+                    inputRef={inputRef}
+                    placeholder="Type your comment here..."
+                    onChangeText={value => commentRef.current = value}
+                    placeholderTextColor={theme.colors.textLight}
+                    containerStyle={{flex: 1, height: hp(6.2), borderRadius: theme.radius.xl}}
+                    />
+                    <TouchableOpacity style={styles.sendIcon}>
+                        <Icon name="send" color={theme.colors.primaryDark} />
+                    </TouchableOpacity>
+            </View>
         </ScrollView>
     </View>
   )
