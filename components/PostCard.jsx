@@ -34,6 +34,7 @@ const PostCard = ({
         setLikes(item?.postLikes);
     }, [])
     const openPostDetails = () => { 
+      router.push({pathname: 'postDetails' , params: {postId: item?.id}});
 
     };
     
@@ -156,7 +157,7 @@ const PostCard = ({
         </Text>
       </View>
       <View style={styles.footerButton}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openPostDetails}>
           <Icon name = "comment" size = {24} color = {theme.colors.textLight} />
         </TouchableOpacity>
         <Text style = {styles.count}>

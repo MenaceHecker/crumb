@@ -1,8 +1,7 @@
-import { Slot, useRouter } from 'expo-router';
+import { Slot, Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { getUserData } from '../services/userService';
 
 const RootLayout = () => {
   return (
@@ -47,6 +46,18 @@ const MainLayout = () => {
     });
 
     return () => {
+      <Stack
+        screenOptions={{
+          headerShown: false
+        }}
+        >
+          <Stack.Screen
+            name="(main)/postDetails"
+            options = {{
+              presentation: 'modal',
+            }}
+            />
+        </Stack>
       console.log('Unsubscribing auth listener...');
       authListener?.subscription?.unsubscribe();
     };
