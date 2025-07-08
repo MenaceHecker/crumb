@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ScrollView } from 'react-native-web';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import Loading from '../../components/Loading';
 import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,19 +10,30 @@ import { fetchPostDetails } from '../../services/postService';
 
 const PostDetails = () => {
     const {postId} = useLocalSearchParams();
-    const {post,setPost} = useState(null);
+    const [post, setPost] = useState(null); // Fixed: use array destructuring, not object
     const {user}  = useAuth();
     const router = useRouter();
+    const [startLoading, setStartLoading] = useState(true);
+    
     useEffect(() => {
-        getPostDetails();
+        getPostDetails(); // Call the function here
     }, []);
-    const postDetails = async () => {
+    
+    const getPostDetails = async () => {
         //fetch post details from server here
         let res = await fetchPostDetails(postId);
-        if(res.success) {
-            setPost(res.data);
-        }
+        if(res.success) setPost(res.data);
+        setStartLoading(false);
     }
+    
+    if(startLoading){
+        return (
+            <View style ={styles.center}>
+                <Loading/>
+            </View>
+        )
+    }
+    
   return (
     <View style={styles.container}>
       <ScrollView showVerticalScrollIndicator={false} style={styles.list}>
@@ -70,7 +81,7 @@ const styles = StyleSheet.create({
     },
     notFound: {
         fontSize: hp(2.5),
-        clor: theme.colors.text,
+        color: theme.colors.text, // Fixed typo: was "clor"
         fontWeight: theme.fonts.medium,
     },
     loading: {

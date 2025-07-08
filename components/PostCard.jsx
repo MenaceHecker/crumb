@@ -34,8 +34,8 @@ const PostCard = ({
         setLikes(item?.postLikes);
     }, [])
     const openPostDetails = () => { 
+      // if(!showMoreIcon) return null;
       router.push({pathname: 'postDetails' , params: {postId: item?.id}});
-
     };
     
     // Debug logs to check data structure
