@@ -18,6 +18,7 @@ const PostDetails = () => {
     const [startLoading, setStartLoading] = useState(true);
     const inputRef = useRef(null);
     const commentRef = useRef('');
+    const [loading, setLoading] = useState(false);
     
     useEffect(() => {
         getPostDetails(); // Call the function here
@@ -28,6 +29,9 @@ const PostDetails = () => {
         let res = await fetchPostDetails(postId);
         if(res.success) setPost(res.data);
         setStartLoading(false);
+    }
+    const onNewComment = async () => {
+
     }
     
     if(startLoading){
@@ -57,9 +61,19 @@ const PostDetails = () => {
                     placeholderTextColor={theme.colors.textLight}
                     containerStyle={{flex: 1, height: hp(6.2), borderRadius: theme.radius.xl}}
                     />
-                    <TouchableOpacity style={styles.sendIcon}>
+                    {
+                        loading? (
+                                <View style={styles.loading}>
+                                    <Loading size="small" />
+                                    </View>
+                        ):(
+                            <TouchableOpacity style={styles.sendIcon}>
                         <Icon name="send" color={theme.colors.primaryDark} />
                     </TouchableOpacity>
+
+                        )
+                    }
+                    
             </View>
         </ScrollView>
     </View>
