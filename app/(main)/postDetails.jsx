@@ -1,13 +1,18 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-web';
+import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
+import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
 import { fetchPostDetails } from '../../services/postService';
 
 const PostDetails = () => {
     const {postId} = useLocalSearchParams();
     const {post,setPost} = useState(null);
+    const {user}  = useAuth();
+    const router = useRouter();
     useEffect(() => {
         getPostDetails();
     }, []);
@@ -19,8 +24,15 @@ const PostDetails = () => {
         }
     }
   return (
-    <View>
-      <Text>PostDetails</Text>
+    <View style={styles.container}>
+      <ScrollView showVerticalScrollIndicator={false} style={styles.list}>
+        <PostCard
+            item={post}
+            currentUser={user}
+            router={router}
+            hasShadow={false}
+            />
+        </ScrollView>
     </View>
   )
 }
@@ -49,7 +61,7 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.lg,
         borderCurve: 'continuous',
         height: hp(5.8),
-        width: hp(5.8),
+        width: wp(5.8),
     },
     center: {
         flex: 1,
@@ -63,7 +75,7 @@ const styles = StyleSheet.create({
     },
     loading: {
         height: hp(5.8),
-        width: hp(5.8),
+        width: wp(5.8),
         justifyContent: 'center',
         alignItems: 'center',
         transform: [{scale: 1.3}],
