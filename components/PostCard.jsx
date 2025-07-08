@@ -1,12 +1,14 @@
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from '../assets/icons'
 import Avatar from '../components/Avatar'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import { getSupabaseFileUrl } from '../services/imageService'
+import { createPostLike, removePostLike } from '../services/postService'
 
 const PostCard = ({
     item,
@@ -24,9 +26,13 @@ const PostCard = ({
     elevation: 1
     }
     const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
-    const liked = false;
-    const likes = [];
-    const openPostDetails = () => { //not implement now 
+    const [likes, setLikes] = useState([]);
+    const liked = likes.filter(like => like.userId == currentUser?.id)[0]? true: false;
+    useEffect(() => {
+        setLikes(item?.postLikes);
+    }, [])
+    const openPostDetails = () => { 
+
     };
     
     // Debug logs to check data structure
@@ -39,6 +45,35 @@ const PostCard = ({
       const result = getSupabaseFileUrl(file);
       return result?.uri || result; // Handle both object and string returns
     };
+
+    // const openPostDetails = () => {
+    //   // not now
+    // }
+
+    const onLike = async () => {
+      if(liked){
+        //remove like
+        let updatedLikes = likes.filter(like => like.userId != currentUser?.id);
+
+      setLikes([...updatedLikes])
+      let res = await removePostLike(item?.id, currentUser?.id);
+      if(!res.success){
+        Alert.alert('Post', 'Something went wrong!' );
+      }
+      }
+      else{
+        //to create like
+        let data = {
+        userId: currentUser?.id,
+        postId: item?.id
+      }
+      setLikes([...likes, data])
+      let res = await createPostLike(data);
+      if(!res.success){
+        Alert.alert('Post', 'Something went wrong!' );
+      }
+      }
+    }
     
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
@@ -95,7 +130,7 @@ const PostCard = ({
       { /* like,comment, share goes here */}
     <View style={styles.footer}>
       <View style={styles.footerButton}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onLike}>
           <Icon name = "heart" size = {24} fill={liked? theme.colors.rose : 'transparent'} color = {liked? theme.colors.rose : theme.colors.textLight} />
         </TouchableOpacity>
         <Text style = {styles.count}>
