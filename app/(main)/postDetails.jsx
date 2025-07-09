@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from '../../assets/icons';
+import CommentItem from '../../components/CommentItem';
 import Input from '../../components/Input';
 import Loading from '../../components/Loading';
 import PostCard from '../../components/PostCard';
@@ -58,12 +59,18 @@ const PostDetails = () => {
             </View>
         )
     }
-    
+    if (!post){
+        return (
+            <View style={[styles.center, {justifyContent: 'flext-start', marginTop: 100}]}>
+                <Text style={styles.notFound}>Post not found</Text>
+            </View>
+        )
+    }
   return (
     <View style={styles.container}>
       <ScrollView showVerticalScrollIndicator={false} style={styles.list}>
         <PostCard
-            item={post}
+            item={{...post, comments: [{count: post?.comments?.length}]}}
             currentUser={user}
             router={router}
             hasShadow={false}
@@ -92,6 +99,24 @@ const PostDetails = () => {
                     }
                     
             </View>
+            {/* comments here */}
+            <View style = {{marginVertical: 15, gap: 17}}>
+            {
+                post?.comments?.map(comment => 
+                    <CommentItem
+                     key= {comment?.id?.toString()}
+                     item={comment}
+                     />
+                )
+            }
+            {
+                post?.comments?.length === 0 && (
+                    <Text style ={{color: theme.colors.text, marginLeft: 5}}>
+                        Be first to comment on this post!
+                    </Text>
+                )
+            }
+        </View>
         </ScrollView>
     </View>
   )

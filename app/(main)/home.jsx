@@ -147,18 +147,17 @@ const Home = () => {
                     onEndReached={() => {
                         getPosts();
                     }}
-                    ListFooterComponent={() => (
+                    onEndReachedThreshold={0}
+                    ListFooterComponent={hasMore? (
                         <View style={{marginVertical: posts.length === 0 ? 200 : 30}}>
                             {loading && <Loading />}
                         </View>
+                    ) : (
+                            <View style={{marginVertical: 30}}>
+                                <Text style={styles.noPosts}> No more posts</Text>
+                                </View>
                     )}
-                    ListEmptyComponent={() => (
-                        !loading && (
-                            <View style={{marginTop: 200}}>
-                                <Text style={styles.noPosts}>No posts yet</Text>
-                            </View>
-                        )
-                    )}
+
                 />
             </View>
         </ScreenWrapper>
