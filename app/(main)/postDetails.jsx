@@ -8,7 +8,8 @@ import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
-import { fetchPostDetails } from '../../services/postService';
+import { createComment, fetchPostDetails } from '../../services/postService';
+
 
 const PostDetails = () => {
     const {postId} = useLocalSearchParams();
