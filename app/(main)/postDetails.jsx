@@ -31,7 +31,23 @@ const PostDetails = () => {
         setStartLoading(false);
     }
     const onNewComment = async () => {
-
+        if(!commentRef.current) return null;
+        let data = {
+            userId: user?.id,
+            postId: post?.id,
+            text: commentRef.current,
+        }
+        //create comment
+        setLoading(true);
+        let res = await createComment(data);
+        setLoading(false);
+        if(res.success){
+            //to send notification later
+            inputRef.current.clear();
+            commentRef.current = "";
+        }else{
+            Alert.alert('Comment', res.msg);
+        }
     }
     
     if(startLoading){
@@ -68,7 +84,7 @@ const PostDetails = () => {
                                     </View>
                         ):(
                             <TouchableOpacity style={styles.sendIcon}>
-                        <Icon name="send" color={theme.colors.primaryDark} />
+                        <Icon name="send" color={theme.colors.primaryDark} onPress={onNewComment} />
                     </TouchableOpacity>
 
                         )

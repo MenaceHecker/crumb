@@ -38,7 +38,7 @@ export const fetchPosts = async (limit=10) => {
     try {
         const {data,error} = await supabase
         .from('posts')
-        .select('*, users (id, name, image), postLikes(*) ')
+        .select('*, users (id, name, image), postLikes(*), comments(count) ')
         .order('created_at', {ascending: false})
         .limit(limit);
 
@@ -58,8 +58,9 @@ export const fetchPostDetails = async (postId) => {
     try {
         const {data,error} = await supabase
         .from('posts')
-        .select('*, users (id, name, image), postLikes(*) ')
+        .select('*, users (id, name, image), postLikes(*), comments(*, users(id, name, image)) ')
         .eq('id', postId)
+        .order("created_at", {ascending: false, foreignTable: 'comments'})
         .single();
 
         if(error){
@@ -112,5 +113,26 @@ export const removePostLike = async (postId, userId) => {
     catch(error) {
         console.log('FetchPost Error:', error);
         return {success: false, msg: "Could not remove the post like"};
+    }
+}
+
+export const createComment = async (comment) => {
+    try {
+        const {data,error} = await supabase 
+        .from('comments')
+        .insert(comment)
+        .select()
+        .single();
+
+        if(error){
+            console.log('Comment Error:', error);
+            return {success: false, msg: "Could not comment on the post"};
+        }
+        
+        return {success: true, data: data};
+    }
+    catch(error) {
+        console.log('Comment Error:', error);
+        return {success: false, msg: "Could not comment on the post"};
     }
 }
