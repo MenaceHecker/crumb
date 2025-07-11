@@ -7,6 +7,9 @@ import Avatar from './Avatar'
 
 const CommentItem = ({item, canDelete = false}) => {
   const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
+  const handleDelete = () => {
+    Alert.alert('Confirm', )
+  }
   
   // Debug logging to see the comment structure
   console.log('CommentItem data:', item);

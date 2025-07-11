@@ -40,7 +40,7 @@ This is a social media application built with **React Native** for a seamless cr
     ``` 
 5.  **When pushing updates, push it to both expo server as well as git else the app crashes**
     ```bash
-    eas update --branch main --message "The_Message" #This runs the dev server with your local IPv4 address (Trying to fix this)
+    eas update --branch main --message "The_Message" 
 
 ---
 
