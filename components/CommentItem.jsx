@@ -1,14 +1,25 @@
 import moment from 'moment'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from '../assets/icons'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import Avatar from './Avatar'
 
-const CommentItem = ({item, canDelete = false}) => {
+const CommentItem = ({item, canDelete = false, onDelete = ()=> {}}) => {
   const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
   const handleDelete = () => {
-    Alert.alert('Confirm', )
+    Alert.alert('Confirm', 'Are you sure you wanna delete your comment?', [
+          {
+            text: 'Cancel',
+            onPress: ()=> console.log('Delete cancelled'),
+            style: 'cancel'
+          },
+          {
+            text: 'Delete',
+            onPress: () => onDelete(item), 
+            style: 'destructive'
+          }
+        ])
   }
   
   // Debug logging to see the comment structure
@@ -43,7 +54,7 @@ const CommentItem = ({item, canDelete = false}) => {
             </View>
             {
               canDelete && (
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={handleDelete}>
                     <Icon name="delete" size={20} color={theme.colors.rose} />
                   </TouchableOpacity>
               )

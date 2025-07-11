@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../assets/icons';
 import CommentItem from '../../components/CommentItem';
 import Input from '../../components/Input';
@@ -9,12 +9,12 @@ import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
-import { createComment, fetchPostDetails } from '../../services/postService';
+import { createComment, fetchPostDetails, removeCommment } from '../../services/postService';
 
 
 const PostDetails = () => {
     const {postId} = useLocalSearchParams();
-    const [post, setPost] = useState(null); // Fixed: use array destructuring, not object
+    const [post, setPost] = useState(null);
     const {user}  = useAuth();
     const router = useRouter();
     const [startLoading, setStartLoading] = useState(true);
@@ -23,7 +23,7 @@ const PostDetails = () => {
     const [loading, setLoading] = useState(false);
     
     useEffect(() => {
-        getPostDetails(); // Call the function here
+        getPostDetails();
     }, []);
     
     const getPostDetails = async () => {
@@ -32,6 +32,7 @@ const PostDetails = () => {
         if(res.success) setPost(res.data);
         setStartLoading(false);
     }
+    
     const onNewComment = async () => {
         if(!commentRef.current) return null;
         let data = {
@@ -47,9 +48,85 @@ const PostDetails = () => {
             //to send notification later
             inputRef.current.clear();
             commentRef.current = "";
+            
+            // Create the comment object with user data included
+            const newCommentWithUser = {
+                ...res.data,
+                users: {
+                    id: user.id,
+                    name: user.name,
+                    image: user.image
+                }
+            };
+            
+            // Update the post with the new comment
+            setPost(prevPost => {
+                if (!prevPost) return prevPost;
+                
+                return {
+                    ...prevPost,
+                    comments: [...(prevPost.comments || []), newCommentWithUser]
+                };
+            });
         }else{
             Alert.alert('Comment', res.msg);
         }
+    }
+    
+    const onDeleteComment = async (comment) => {
+        console.log('=== DELETE COMMENT DEBUG ===');
+        console.log('1. Comment to delete:', JSON.stringify(comment, null, 2));
+        console.log('2. Comment ID:', comment?.id, 'Type:', typeof comment?.id);
+        console.log('3. Current post comments before delete:', post?.comments?.length);
+        console.log('4. All comment IDs:', post?.comments?.map(c => c.id));
+        
+        console.log('About to call removeCommment with ID:', comment?.id);
+        let res = await removeCommment(comment?.id);
+        console.log('5. API Response:', JSON.stringify(res, null, 2));
+        console.log('6. API Response success:', res?.success);
+        
+        if(res.success){
+            console.log('6. API Delete successful - updating UI');
+            
+            // Method 1: Try the re-fetch approach
+            console.log('7. Re-fetching post details...');
+            await getPostDetails();
+            console.log('8. After re-fetch, comments count:', post?.comments?.length);
+            
+            // If re-fetch doesn't work, let's also try manual state update
+            setTimeout(() => {
+                console.log('9. Attempting manual state update as backup...');
+                setPost(prevPost => {
+                    if (!prevPost?.comments) {
+                        console.log('10. No comments found in prevPost');
+                        return prevPost;
+                    }
+                    
+                    console.log('11. Before manual filter:', prevPost.comments.length, 'comments');
+                    const filteredComments = prevPost.comments.filter(c => {
+                        const shouldKeep = String(c.id) !== String(comment.id);
+                        console.log(`12. Comment ${c.id} (${typeof c.id}): ${shouldKeep ? 'KEEP' : 'REMOVE'}`);
+                        return shouldKeep;
+                    });
+                    
+                    console.log('13. After manual filter:', filteredComments.length, 'comments');
+                    
+                    const updatedPost = {
+                        ...prevPost,
+                        comments: filteredComments
+                    };
+                    
+                    console.log('14. Returning updated post with', updatedPost.comments.length, 'comments');
+                    return updatedPost;
+                });
+            }, 100);
+            
+        } else {
+            console.log('6. API Delete failed:', res.msg);
+            Alert.alert('Comment', res.msg);
+        }
+        
+        console.log('=== END DELETE COMMENT DEBUG ===');
     }
     
     if(startLoading){
@@ -61,7 +138,7 @@ const PostDetails = () => {
     }
     if (!post){
         return (
-            <View style={[styles.center, {justifyContent: 'flext-start', marginTop: 100}]}>
+            <View style={[styles.center, {justifyContent: 'flex-start', marginTop: 100}]}>
                 <Text style={styles.notFound}>Post not found</Text>
             </View>
         )
@@ -106,6 +183,8 @@ const PostDetails = () => {
                     <CommentItem
                      key= {comment?.id?.toString()}
                      item={comment}
+                     onDelete={onDeleteComment}
+                     canDelete= {user.id == comment.userId || user.id == post.userId}
                      />
                 )
             }
@@ -155,7 +234,7 @@ const styles = StyleSheet.create({
     },
     notFound: {
         fontSize: hp(2.5),
-        color: theme.colors.text, // Fixed typo: was "clor"
+        color: theme.colors.text,
         fontWeight: theme.fonts.medium,
     },
     loading: {
