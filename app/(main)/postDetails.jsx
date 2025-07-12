@@ -9,6 +9,7 @@ import PostCard from '../../components/PostCard';
 import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
+import { supabase } from '../../lib/supabase';
 import { createComment, fetchPostDetails, removeCommment } from '../../services/postService';
 
 
@@ -21,10 +22,24 @@ const PostDetails = () => {
     const inputRef = useRef(null);
     const commentRef = useRef('');
     const [loading, setLoading] = useState(false);
-    
+
     useEffect(() => {
-        getPostDetails();
-    }, []);
+            let commentChannel = supabase
+                .channel('comments')
+                .on('postgres_changes', {
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'comments',
+                    filter: 'postId=eq.${postId}'
+                }, handlenewComment)
+                .subscribe();
+    
+            getPostDetails();
+            
+            return () => {
+                supabase.removeChannel(postChannel);
+            }
+        }, []);
     
     const getPostDetails = async () => {
         //fetch post details from server here
