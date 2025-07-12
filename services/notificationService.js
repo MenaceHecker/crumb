@@ -1,6 +1,8 @@
+import { supabase } from "../lib/supabase";
+
 export const createNotification = async (notification) => {
     try {
-        const {data,error} = await supabase 
+        const {data,error} = await supabase
         .from('notifications')
         .insert(notification)
         .select()
@@ -16,5 +18,26 @@ export const createNotification = async (notification) => {
     catch(error) {
         console.log('Notification Error:', error);
         return {success: false, msg: "Something went wrong!"};
+    }
+}
+
+export const fetchNotifications = async (receiverId) => {
+    try {
+        const {data,error} = await supabase
+        .from('posts')
+        .select('*, sender: senderId(id, name, image) ')
+        .eq('receiverId', receiverId)
+        .order("created_at", {ascending: false});
+
+        if(error){
+            console.log('FetchNotification Error:', error);
+            return {success: false, msg: "Can't fetch the post"};
+        }
+        
+        return {success: true, data: data};
+    }
+    catch(error) {
+        console.log('FetchNotifications Error:', error);
+        return {success: false, msg: "Can't fetch the post"};
     }
 }
