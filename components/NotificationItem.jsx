@@ -6,6 +6,9 @@ const NotificationItem = ({
     item,
     router
 }) => {
+    const handleClick = () => {
+        // open post details
+    }
   return (
     <TouchableOpacity style={styles.container} onPress={handleClick}>
         <Text> NotificationItem </Text>
