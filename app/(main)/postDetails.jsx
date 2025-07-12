@@ -10,7 +10,7 @@ import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
 import { supabase } from '../../lib/supabase';
-import { createComment, fetchPostDetails, removeCommment } from '../../services/postService';
+import { createComment, fetchPostDetails, removeCommment, removePost } from '../../services/postService';
 
 
 const PostDetails = () => {

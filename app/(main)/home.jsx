@@ -47,6 +47,8 @@ const Home = () => {
             let newPost = {...payload.new};
             let res = await getUserData(newPost.userId);
             newPost.user = res.success ? res.data : {};
+            newPost.postLikes = [];
+            newPost.comments = [{count: 0}];
             
             // Add the new post to the beginning of the array
             setPosts(prevPosts => [newPost, ...prevPosts]);
@@ -61,11 +63,12 @@ const Home = () => {
             );
         }
         
-        // Handle DELETE events
+        // Handle DELETE events here
         if(payload.eventType === 'DELETE' && payload?.old?.id) {
-            setPosts(prevPosts => 
-                prevPosts.filter(post => post.id !== payload.old.id)
-            );
+            setPosts(prevPosts => {
+                let updatedPosts = prevPosts.filter(post => post.id !== payload.old.id);
+                return updatedPosts;
+            })
         }
     };
 

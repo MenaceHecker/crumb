@@ -183,7 +183,7 @@ const PostCard = ({
         {
           showDelete && currentUser.id == item?.userId && (
             <View style = {styles.actions}>
-              <TouchableOpacity onPress={onEdit}>
+              <TouchableOpacity onPress={ ()=> onEdit(item)}>
               < Icon name="edit" size={hp(2.5)}  color={theme.colors.text} />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleDeletePost}>
