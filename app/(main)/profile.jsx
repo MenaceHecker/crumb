@@ -1,20 +1,23 @@
-import { StyleSheet, Text, TouchableOpacity, View, Alert, Pressable } from 'react-native' 
-import React from 'react'
-import ScreenWrapper from '../../components/ScreenWrapper'
-import { useRouter } from 'expo-router' // 
-import { useAuth } from '../../contexts/AuthContext' 
-import Header from '../../components/Header'
-import BackButton from '../../components/BackButton'
-import { wp, hp } from '../../helpers/common'
-import Icon from '../../assets/icons' 
-import { theme } from '../../constants/theme'
-import { supabase } from '../../lib/supabase'
-import Avatar from '../../components/Avatar'
-import { router } from 'expo-router'
+import { useRouter } from 'expo-router'; // 
+import { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Icon from '../../assets/icons';
+import Avatar from '../../components/Avatar';
+import Header from '../../components/Header';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import { theme } from '../../constants/theme';
+import { useAuth } from '../../contexts/AuthContext';
+import { hp, wp } from '../../helpers/common';
+import { supabase } from '../../lib/supabase';
+import { fetchPosts } from '../../services/postService';
 
+var limit = 0;
 const Profile = () => {
   const router = useRouter();
   const { user, setAuth } = useAuth(); 
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
 
   const onLogout = async () => {
     const {error} = await supabase.auth.signOut();
@@ -42,6 +45,22 @@ const Profile = () => {
       }
     ])
   }
+  const getPosts = async () => {
+          try {
+              setLoading(true);
+              if(!hasMore) return null;
+              limit = limit + 4;
+              let res = await fetchPosts(limit, user.id);
+              if(res.success) {
+                  if(posts.length == res.data.length) setHasMore(false);
+                  setPosts(res.data);
+              }
+          } catch (error) {
+              console.log('Error fetching posts:', error);
+          } finally {
+              setLoading(false);
+          }
+      };
 
   return (
     <ScreenWrapper bg='white'>
