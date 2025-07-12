@@ -22,17 +22,18 @@ const PostDetails = () => {
     const inputRef = useRef(null);
     const commentRef = useRef('');
     const [loading, setLoading] = useState(false);
-    const handleNewComment = async (payload) => {
+    const handlenewComment = async (payload) => {
         if(payload.new){
-            let newComment = {...payloadd.new};
+            let newComment = {...payload.new};
             let res = await getUserData(newComment.userId);
-            newComment.user = res.success? res.data : {};
-            setPost(prevPost => {
+            newComment.users = res.success ? res.data : {};
+            setPost( prevPost => {
                 return {
                     ...prevPost,
                     comments: [newComment, ...prevPost.comments]
                 }
             })
+
         }
     }
 
@@ -44,13 +45,13 @@ const PostDetails = () => {
                     schema: 'public', 
                     table: 'comments',
                     filter: 'postId=eq.${postId}'
-                }, handleNewComment)
+                }, handlenewComment)
                 .subscribe();
     
             getPostDetails();
             
             return () => {
-                supabase.removeChannel(postChannel);
+                supabase.removeChannel(commentChannel);
             }
         }, []);
     
@@ -156,6 +157,13 @@ const PostDetails = () => {
         
         console.log('=== END DELETE COMMENT DEBUG ===');
     }
+
+    const onDeletePost = async (item) => {
+        
+    }
+    const onEditPost = async (item) => {
+        
+    }
     
     if(startLoading){
         return (
@@ -180,6 +188,9 @@ const PostDetails = () => {
             router={router}
             hasShadow={false}
             showMoreIcon = {false}
+            showDelete= {true}
+            onDelete={onDeletePost}
+            onEdit={onEditPost}
             />
             {/*commenting the input */}
             <View style={styles.inputContainer}>
