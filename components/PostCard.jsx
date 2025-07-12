@@ -17,6 +17,9 @@ const PostCard = ({
     router,
     hasShadow = true,
     showMoreIcon = true,
+    showDelete = false,
+    onDelete=()=> {},
+    onEdit = () => {},
 }) => {
   // Early return if item is null/undefined
   if (!item) {
@@ -145,6 +148,13 @@ const PostCard = ({
             <TouchableOpacity onPress={openPostDetails}>
               <Icon name="threeDotsHorizontal" size={hp(3.4)} strokeWidth={3} color={theme.colors.text} />
             </TouchableOpacity>
+          )
+        }
+        {
+          showDelete && currentUser.id == item?.userId && (
+            <View style = {styles.icon}>
+
+            </View>
           )
         }
       </View>
