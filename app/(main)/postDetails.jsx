@@ -159,10 +159,16 @@ const PostDetails = () => {
     }
 
     const onDeletePost = async (item) => {
-        
+        let res = await removePost(post.id);
+        if(res.success){
+            router.back();
+        }
+        else{
+            Alert.alert('Post', res.msg);
+        }
     }
     const onEditPost = async (item) => {
-        
+
     }
     
     if(startLoading){
