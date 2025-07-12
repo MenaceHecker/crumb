@@ -1,9 +1,8 @@
-import { useRouter } from 'expo-router'; // 
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../assets/icons';
 import Avatar from '../../components/Avatar';
-import Header from '../../components/Header';
 import Loading from '../../components/Loading';
 import PostCard from '../../components/PostCard';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -27,7 +26,6 @@ const Profile = () => {
         console.error('Supabase Sign Out Error:', error.message); 
         Alert.alert('Sign Out Error', error.message);
     } else {
-
         setAuth(null);
         console.log('User signed out successfully.');
     }
@@ -47,11 +45,12 @@ const Profile = () => {
       }
     ])
   }
+
   const getPosts = async () => {
           try {
               setLoading(true);
               if(!hasMore) return null;
-              limit = limit + 4;
+              limit = limit + 10;
               let res = await fetchPosts(limit, user.id);
               if(res.success) {
                   if(posts.length == res.data.length) setHasMore(false);
@@ -68,8 +67,8 @@ const Profile = () => {
     <ScreenWrapper bg='white'>
       <FlatList
         data={posts}
-        ListHeaderComponent={<UserHeader user = {user} router = {router} handleLogout={handleLogout}/>}
-        ListHeaderComponentStyle={{marginBottom: 30}}
+        ListHeaderComponent={<UserHeader user = {user} router = {router} handleLogout={handleLogout} posts={posts}/>}
+        ListHeaderComponentStyle={{marginBottom: 20}}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listStyle}
         keyExtractor={(item) => item.id.toString()}
@@ -93,72 +92,90 @@ const Profile = () => {
             <Text style={styles.noPosts}> No more posts</Text>
           </View>
         )}
-
       />
     </ScreenWrapper>
   )
 }
 
-
-const UserHeader = ({user, router, handleLogout}) => {
+const UserHeader = ({user, router, handleLogout, posts}) => {
   return (
-    <View style = {{flex:1, backgroundColor: 'white', paddingHorizontal: wp(4)}}>
-      <View>
-        <Header title="Profile" mb={30} />
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="logout" color={theme.colors.rose} />
+    <View style={styles.headerContainer}>
+      {/* Top Header with username and menu */}
+      <View style={styles.topHeader}>
+        <View style={styles.usernameContainer}>
+          <Text style={styles.username}>
+            {user?.name || user?.user_metadata?.full_name || 'No Name'}
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.menuButton} onPress={handleLogout}>
+          <Icon name="logout" color={theme.colors.textDark} size={24} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.container}>
-      <View style={{gap: 15}}>
-        <View style={styles.avatarContainer}>
-          <Avatar
-        uri={user?.image}
-        size={hp(12)}
-        rounded={theme.radius.xxl*1.4}
-        />
-        <Pressable style={styles.editIcon} onPress={() => router.push('editProfile')}>
-          <Icon name="edit" strokeWidth={2.5} size={20} />
-        </Pressable>
-        </View>
-        {/* username and address*/}
-        <View style={{alignItems: 'center', gap: 4}}>
-          <Text style={styles.userName}> 
-            {user?.name || user?.user_metadata?.full_name || 'No Name'} 
-          </Text>
-          <Text style={styles.infoText}> 
-            {user?.address || 'No Address'} 
-          </Text>
-        </View>
-        {/* Here goes the email, phone , bio */}
-        <View style={{gap:10}}>
-          <View style={styles.info}>
-            <Icon name="mail" size={20} color={theme.colors.textLight} />
-            <Text style={styles.infoText}>
-              {user && user.email}
-            </Text>
+      {/* Profile Info Section */}
+      <View style={styles.profileSection}>
+        {/* Avatar and Stats Row */}
+        <View style={styles.avatarStatsRow}>
+          <View style={styles.avatarContainer}>
+            <Avatar
+              uri={user?.image}
+              size={hp(10)}
+              rounded={theme.radius.xxl*1.4}
+            />
           </View>
-          {
-            user && user.phoneNumber && (
-                        <View style={styles.info}>
-            <Icon name="call" size={20} color={theme.colors.textLight} />
-            <Text style={styles.infoText}>
-              {user && user.phoneNumber}
-            </Text>
+          
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{posts?.length || 0}</Text>
+              <Text style={styles.statLabel}>Posts</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statLabel}>Followers</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statLabel}>Following</Text>
+            </View>
           </View>
-            )
-          }
+        </View>
 
-          {
-            user && user.bio && (
-              <Text style={styles.infoText}>
-                {user.bio}
-              </Text>
-            )
-          }
+        {/* Bio Section */}
+        <View style={styles.bioSection}>
+          <Text style={styles.displayName}>
+            {user?.name || user?.user_metadata?.full_name || 'No Name'}
+          </Text>
+          {user?.bio && (
+            <Text style={styles.bio}>{user.bio}</Text>
+          )}
+          {user?.address && (
+            <Text style={styles.bio}>{user.address}</Text>
+          )}
+          {user?.email && (
+            <Text style={styles.bio}>{user.email}</Text>
+          )}
+          {user?.phoneNumber && (
+            <Text style={styles.bio}>{user.phoneNumber}</Text>
+          )}
         </View>
-      </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => router.push('editProfile')}
+          >
+            <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.shareButton}>
+            <Text style={styles.shareButtonText}>Share Profile</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.addFriendButton}>
+            <Text style={styles.addFriendText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   )
@@ -167,65 +184,142 @@ const UserHeader = ({user, router, handleLogout}) => {
 export default Profile
 
 const styles = StyleSheet.create({
+  listStyle: {
+    paddingBottom: 30,
+  },
   noPosts: {
     fontSize: hp(2),
     textAlign: 'center',
     color: theme.colors.text,
   },
-  logoutButton: {
-    position: 'absolute',
-    right: 0,
-    padding: 5,
-    borderRadius: theme.radius.sm,
-    backgroundColor: '#fee2e2',
-  },
-  listStyle: {
+  headerContainer: {
+    backgroundColor: 'white',
     paddingHorizontal: wp(4),
-    paddingBottom: 30,
   },
-  infoText: {
-    fontSize: hp(1.6),
-    fontWeight: '500',
-    color: theme.colors.textLight,
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: hp(2),
+    borderBottomWidth: 0.5,
+    borderBottomColor: theme.colors.gray,
   },
-  info: {
+  usernameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
-  userName: {
-    fontSize: hp(3),
-    fontWeight: '500',
+  username: {
+    fontSize: hp(2.2),
+    fontWeight: '600',
     color: theme.colors.textDark,
   },
-  editIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: -12,
-    padding: 7,
-    borderRadius: 50,
-    backgroundColor: 'white',
-    shadowColor: theme.colors.textLight,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 7
+  menuButton: {
+    padding: 8,
+  },
+  profileSection: {
+    paddingVertical: hp(2),
+  },
+  avatarStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: hp(2),
   },
   avatarContainer: {
-    height: hp(12),
-    // width: wp(12),
-    alignSelf: 'center',
-     alignItems: 'center'
+    marginRight: wp(8),
   },
-  headerShape: {
-    width: wp(100),
-    height: hp(20)
-  },
-  headerContainer: {
-    marginHorizontal: wp(4),
-    marginBottom: 20
-  },
-  container: {
+  statsContainer: {
     flex: 1,
-  }
-  });
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: hp(2.2),
+    fontWeight: '600',
+    color: theme.colors.textDark,
+  },
+  statLabel: {
+    fontSize: hp(1.6),
+    color: theme.colors.textLight,
+    marginTop: 2,
+  },
+  bioSection: {
+    marginBottom: hp(2),
+  },
+  displayName: {
+    fontSize: hp(1.8),
+    fontWeight: '600',
+    color: theme.colors.textDark,
+    marginBottom: 4,
+  },
+  bio: {
+    fontSize: hp(1.6),
+    color: theme.colors.textDark,
+    lineHeight: hp(2.2),
+    marginBottom: 2,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: hp(2),
+  },
+  editButton: {
+    flex: 1,
+    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(4),
+    backgroundColor: theme.colors.gray,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  editButtonText: {
+    fontSize: hp(1.6),
+    fontWeight: '600',
+    color: theme.colors.textDark,
+  },
+  shareButton: {
+    flex: 1,
+    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(4),
+    backgroundColor: theme.colors.gray,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  shareButtonText: {
+    fontSize: hp(1.6),
+    fontWeight: '600',
+    color: theme.colors.textDark,
+  },
+  addFriendButton: {
+    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(3),
+    backgroundColor: theme.colors.gray,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addFriendText: {
+    fontSize: hp(2),
+    fontWeight: '600',
+    color: theme.colors.textDark,
+  },
+  postsGridHeader: {
+    flexDirection: 'row',
+    borderTopWidth: 0.5,
+    borderTopColor: theme.colors.gray,
+    paddingTop: hp(1.5),
+  },
+  gridTab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: hp(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+  },
+  gridTabText: {
+    fontSize: hp(2.5),
+    color: theme.colors.textDark,
+  },
+});

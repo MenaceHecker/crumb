@@ -95,7 +95,7 @@ const Home = () => {
         try {
             setLoading(true);
             if(!hasMore) return null;
-            limit = limit + 4;
+            limit = limit + 10;
             let res = await fetchPosts(limit);
             if(res.success) {
                 if(posts.length == res.data.length) setHasMore(false);
