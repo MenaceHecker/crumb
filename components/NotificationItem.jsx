@@ -1,14 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import { theme } from '../constants/theme'
+import { hp } from '../helpers/common'
 
 const NotificationItem = ({
     item,
     router
 }) => {
   return (
-    <View>
-      <Text>NotificationItem</Text>
-    </View>
+    <TouchableOpacity style={styles.container} onPress={handleClick}>
+        <Text> NotificationItem </Text>
+    </TouchableOpacity>
   )
 }
 
@@ -27,5 +28,14 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: theme.radius.xxl,
         borderCurve: 'continuous'
+    },
+    nameTitle: {
+        flex: 1,
+        gap: 2
+    },
+    text: {
+        fontSize: hp(1.6),
+        fontWeight: theme.fonts.medium,
+        color: theme.colors.text
     }
 })
