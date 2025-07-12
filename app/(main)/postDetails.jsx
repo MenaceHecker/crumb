@@ -74,7 +74,16 @@ const PostDetails = () => {
         let res = await createComment(data);
         setLoading(false);
         if(res.success){
-            //to send notification later
+            if(user.id!=post.user)
+            {
+                //send notification is user is not the current user
+                let notify ={
+                    senderId: user.id,
+                    receiverId: post.userId,
+                    title:"commented on your post",
+                    data: JSON.stringify({postId: post.id, commentId: res?.data?.id})
+                }
+            }
             inputRef.current.clear();
             commentRef.current = "";
             
