@@ -1,10 +1,13 @@
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import ScreenWrapper from '../../components/ScreenWrapper';
 import { theme } from '../../constants/theme';
 import { hp, wp } from '../../helpers/common';
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
+  const router = useRouter();
   useEffect(()=> {
       getNotifications();
   },[]);
@@ -16,9 +19,23 @@ const Notification = () => {
     }
   }
   return (
-    <View>
-      <Text>Notification</Text>
-    </View>
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listStyle}>
+          {
+            notifications.map(item=>{
+              return (
+                <NotificationItem
+                  item={item}
+                  key={item?.id}
+                  router={router}
+                  />
+              )
+            })
+          }
+        </ScrollView>
+      </View>
+      </ScreenWrapper>
   )
 }
 
