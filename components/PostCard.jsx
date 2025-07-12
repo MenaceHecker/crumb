@@ -39,6 +39,21 @@ const PostCard = ({
     shadowRadius: 6,
     elevation: 1
   }
+  const textStyle = {
+    color: theme.colors.dark,
+    fontSize: hp(1.75),
+  };
+  const tagsStyles = {
+    div: textStyle,
+    p: textStyle,
+    ol: textStyle,
+    h1: {
+      color: theme.colors.dark
+    },
+    h4: {
+      color: theme.colors.dark
+    }
+  }
 
   const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
   const [likes, setLikes] = useState([]);
@@ -85,6 +100,21 @@ const PostCard = ({
       }
     }
     Share.share(content);
+  }
+
+  const handleDeletePost = () => {
+      Alert.alert('Confirm', 'Are you sure you wanna delete your comment?', [
+          {
+            text: 'Cancel',
+            onPress: ()=> console.log('Delete cancelled'),
+            style: 'cancel'
+          },
+          {
+            text: 'Delete',
+            onPress: () => onDelete(item), 
+            style: 'destructive'
+          }
+        ])
   }
 
   const onLike = async () => {
@@ -156,7 +186,7 @@ const PostCard = ({
               <TouchableOpacity onPress={onEdit}>
               < Icon name="edit" size={hp(2.5)}  color={theme.colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onDelete}>
+            <TouchableOpacity onPress={handleDeletePost}>
               < Icon name="delete" size={hp(2.5)}  color={theme.colors.rose} />
             </TouchableOpacity>
             </View>
