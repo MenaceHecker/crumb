@@ -1,6 +1,6 @@
 import { Video } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Icon from '../../assets/icons'
@@ -15,6 +15,8 @@ import { getSupabaseFileUrl } from '../../services/imageService'
 import { createOrUpdatePost } from '../../services/postService'
 
 const NewPost = () => {
+  const post = useLocalSearchParams();
+
   const {user, setAuth} = useAuth();
   const bodyRef = useRef("");
   const editorRef = useRef(null);
@@ -22,6 +24,18 @@ const NewPost = () => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [bodyText, setBodyText] = useState(""); 
+  useEffect (()=> {
+    if(post && post.id)
+    {
+      bodyRef.current = post.body;
+      setFile(post.file || null);
+      setTimeout(()=> {
+          editorRef?.current?.setContentHTML(post.body);
+
+      }, 300);
+      
+    }
+  })
 
   const onPick = async (isImage) => {
     try {
@@ -41,7 +55,6 @@ const NewPost = () => {
       if(isImage) {
         mediaConfig.aspect = [4, 3];
       } else {
-        // For videos, you might want to set additional options
         mediaConfig.videoMaxDuration = 60; // 60 seconds max
       }
 
@@ -219,7 +232,7 @@ const NewPost = () => {
         </ScrollView>
         <ButtonGen
         buttonStyle={{height: hp(6.2)}}
-        title='Post'
+        title={post & post.id? "Update" : "Post"}
         loading={loading}
         hasShadow={false}
         onPress={onSubmit}
