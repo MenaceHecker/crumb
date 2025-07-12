@@ -156,6 +156,9 @@ const PostCard = ({
               <TouchableOpacity onPress={onEdit}>
               < Icon name="edit" size={hp(2.5)}  color={theme.colors.text} />
             </TouchableOpacity>
+            <TouchableOpacity onPress={onDelete}>
+              < Icon name="delete" size={hp(2.5)}  color={theme.colors.rose} />
+            </TouchableOpacity>
             </View>
           )
         }
