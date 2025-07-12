@@ -22,6 +22,19 @@ const PostDetails = () => {
     const inputRef = useRef(null);
     const commentRef = useRef('');
     const [loading, setLoading] = useState(false);
+    const handleNewComment = async (payload) => {
+        if(payload.new){
+            let newComment = {...payloadd.new};
+            let res = await getUserData(newComment.userId);
+            newComment.user = res.success? res.data : {};
+            setPost(prevPost => {
+                return {
+                    ...prevPost,
+                    comments: [newComment, ...prevPost.comments]
+                }
+            })
+        }
+    }
 
     useEffect(() => {
             let commentChannel = supabase
@@ -31,7 +44,7 @@ const PostDetails = () => {
                     schema: 'public', 
                     table: 'comments',
                     filter: 'postId=eq.${postId}'
-                }, handlenewComment)
+                }, handleNewComment)
                 .subscribe();
     
             getPostDetails();
