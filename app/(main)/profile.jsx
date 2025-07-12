@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router'; // 
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../assets/icons';
 import Avatar from '../../components/Avatar';
 import Header from '../../components/Header';
+import Loading from '../../components/Loading';
+import PostCard from '../../components/PostCard';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
@@ -64,7 +66,35 @@ const Profile = () => {
 
   return (
     <ScreenWrapper bg='white'>
-      <UserHeader user = {user} router = {router} handleLogout={handleLogout}/>
+      <FlatList
+        data={posts}
+        ListHeaderComponent={<UserHeader user = {user} router = {router} handleLogout={handleLogout}/>}
+        ListHeaderComponentStyle={{marginBottom: 30}}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listStyle}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <PostCard
+            item={item}
+            currentUser={user}
+            router={router}
+          />
+        )}
+        onEndReached={() => {
+          getPosts();
+        }}
+        onEndReachedThreshold={0}
+        ListFooterComponent={hasMore ? (
+          <View style={{ marginVertical: posts.length === 0 ? 100 : 30 }}>
+            {loading && <Loading />}
+          </View>
+        ) : (
+          <View style={{ marginVertical: 30 }}>
+            <Text style={styles.noPosts}> No more posts</Text>
+          </View>
+        )}
+
+      />
     </ScreenWrapper>
   )
 }
