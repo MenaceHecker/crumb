@@ -10,6 +10,7 @@ import { theme } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
 import { supabase } from '../../lib/supabase';
+import { createNotification } from '../../services/notificationService';
 import { createComment, fetchPostDetails, removeCommment, removePost } from '../../services/postService';
 
 
@@ -83,6 +84,7 @@ const PostDetails = () => {
                     title:"commented on your post",
                     data: JSON.stringify({postId: post.id, commentId: res?.data?.id})
                 }
+                createNotification(notify);
             }
             inputRef.current.clear();
             commentRef.current = "";

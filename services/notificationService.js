@@ -31,13 +31,13 @@ export const fetchNotifications = async (receiverId) => {
 
         if(error){
             console.log('FetchNotification Error:', error);
-            return {success: false, msg: "Can't fetch the post"};
+            return {success: false, msg: "Can't fetch the notifications"};
         }
         
         return {success: true, data: data};
     }
     catch(error) {
         console.log('FetchNotifications Error:', error);
-        return {success: false, msg: "Can't fetch the post"};
+        return {success: false, msg: "Can't fetch the notifications"};
     }
 }

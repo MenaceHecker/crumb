@@ -1,7 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 const Notification = () => {
+  const [notifications, setNotifications] = useState([]);
+  useEffect(()=> {
+      getNotifications();
+  },[]);
   return (
     <View>
       <Text>Notification</Text>
