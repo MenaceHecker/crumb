@@ -24,18 +24,24 @@ const NewPost = () => {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [bodyText, setBodyText] = useState(""); 
-  useEffect (()=> {
-    if(post && post.id)
-    {
-      bodyRef.current = post.body;
-      setFile(post.file || null);
-      setTimeout(()=> {
-          editorRef?.current?.setContentHTML(post.body);
-
-      }, 300);
+  
+  // Fixed useEffect with proper dependency array and state management
+  useEffect(() => {
+    if(post && post.id) {
+      console.log('Editing post:', post);
+      console.log('Post body:', post.body);
       
+      // Set both the ref and state
+      bodyRef.current = post.body || "";
+      setBodyText(post.body || ""); // This will populate the TextInput
+      setFile(post.file || null);
+      
+      // If using RichTextEditor, set content after a delay
+      setTimeout(() => {
+        editorRef?.current?.setContentHTML(post.body || "");
+      }, 300);
     }
-  })
+  }, [post.id]); // Only run when post.id changes
 
   const onPick = async (isImage) => {
     try {
@@ -122,15 +128,19 @@ const NewPost = () => {
       body: bodyRef.current,
       userId: user?.id,
     }
+    if(post && post.id){
+      data.id = post.id;
+    }
 
     // create a post under work 
     setLoading(true);
     let res = await createOrUpdatePost(data);
     setLoading(false);    
     if(res.success) {
-      Alert.alert('Success', 'Post created successfully!');
+      Alert.alert('Success', post && post.id ? 'Post updated successfully!' : 'Post created successfully!');
       setFile(null);
       bodyRef.current='';
+      setBodyText(''); // Clear the state as well
       editorRef.current?.setContentHTML('');
       router.back();
     } else {
@@ -158,7 +168,7 @@ const NewPost = () => {
   return (
     <ScreenWrapper bg="white">
       <View style={styles.container}>
-        <Header title="Create Post" />
+        <Header title={post && post.id ? "Edit Post" : "Create Post"} />
         <ScrollView contentContainerStyle={{gap:20}}>
           {/* avatar comes here */}
           <View style={styles.header}>
@@ -232,7 +242,7 @@ const NewPost = () => {
         </ScrollView>
         <ButtonGen
         buttonStyle={{height: hp(6.2)}}
-        title={post & post.id? "Update" : "Post"}
+        title={post && post.id ? "Update" : "Post"}
         loading={loading}
         hasShadow={false}
         onPress={onSubmit}

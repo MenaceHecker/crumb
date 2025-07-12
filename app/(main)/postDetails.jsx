@@ -168,8 +168,8 @@ const PostDetails = () => {
         }
     }
     const onEditPost = async (item) => {
-
-    }
+    router.replace({pathname: 'newPost', params: {...item}})
+}
     
     if(startLoading){
         return (
