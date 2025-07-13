@@ -141,6 +141,13 @@ const Home = () => {
                     <View style={styles.icons}>
                         <Pressable onPress={() => router.push('/notifications')}>
                             <Icon name="heart" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
+                            {
+                                notificationCount > 0 && (
+                                    <View style={styles.pill}>
+                                        <Text style={styles.pillText}>{notificationCount}</Text>
+                                    </View>
+                                )
+                            }
                         </Pressable>
                         <Pressable onPress={() => router.push('/newPost')}>
                             <Icon name="plus" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
