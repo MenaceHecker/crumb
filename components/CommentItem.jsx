@@ -41,7 +41,7 @@ const CommentItem = ({item, canDelete = false, onDelete = ()=> {}, highlight=fal
       <Avatar
         uri={userImage}
         />
-        <View style={styles.content}>
+        <View style={[styles.content, highlight && styles.highlight]}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
             <View style={styles.nameContainer}>
               <Text style={styles.text}>

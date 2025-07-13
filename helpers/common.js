@@ -14,4 +14,4 @@ export const wp = percentage => {
 
 export const stripHtmlTags = (html) => {
   return html.replace(/<[^>]*>/gm, '');
-}
+};

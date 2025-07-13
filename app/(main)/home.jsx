@@ -39,6 +39,7 @@ const Home = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
+    const [notificationCount, setNotificationCount] = useState(0);
 
     const handlePostEvent = async (payload) => {
         console.log('Post event received:', payload);
@@ -72,7 +73,10 @@ const Home = () => {
         }
     };
     const handleNewNotification = async (payload) => {
-
+        if(payload.eventType=='INSERT' && payload.new.id)
+        {
+            setNotificationCount(prev => prev+1);
+        }
     }
 
     console.log('Home user: ', user);
