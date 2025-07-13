@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import Icon from '../../assets/icons'
+import NFC from '../../assets/icons/NFCAdd'
 import Loading from '../../components/Loading'
 import PostCard from '../../components/PostCard'
 import ScreenWrapper from '../../components/ScreenWrapper'
@@ -64,7 +65,7 @@ const Home = () => {
             );
         }
         
-        // Handle DELETE events here
+        // Handle DELETE events
         if(payload.eventType === 'DELETE' && payload?.old?.id) {
             setPosts(prevPosts => {
                 let updatedPosts = prevPosts.filter(post => post.id !== payload.old.id);
@@ -72,17 +73,117 @@ const Home = () => {
             })
         }
     };
-    const handleNewNotification = async (payload) => {
-        if(payload.eventType=='INSERT' && payload.new.id)
-        {
-            setNotificationCount(prev => prev+1);
+
+    const handleLikeEvent = async (payload) => {
+        console.log('Like event received:', payload);
+        
+        if(payload.eventType === 'INSERT' && payload?.new) {
+            const { postId, userId } = payload.new;
+            
+            // Get user data for the like
+            const userRes = await getUserData(userId);
+            const likeWithUser = {
+                ...payload.new,
+                user: userRes.success ? userRes.data : {}
+            };
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => {
+                    if(post.id === postId) {
+                        return {
+                            ...post,
+                            postLikes: [...(post.postLikes || []), likeWithUser]
+                        };
+                    }
+                    return post;
+                })
+            );
         }
-    }
+        
+        if(payload.eventType === 'DELETE' && payload?.old) {
+            const { postId, userId } = payload.old;
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => {
+                    if(post.id === postId) {
+                        return {
+                            ...post,
+                            postLikes: (post.postLikes || []).filter(like => like.userId !== userId)
+                        };
+                    }
+                    return post;
+                })
+            );
+        }
+    };
+
+    const handleCommentEvent = async (payload) => {
+        console.log('Comment event received:', payload);
+        
+        if(payload.eventType === 'INSERT' && payload?.new) {
+            const { postId, userId } = payload.new;
+            
+            // Get user data for the comment
+            const userRes = await getUserData(userId);
+            const commentWithUser = {
+                ...payload.new,
+                user: userRes.success ? userRes.data : {}
+            };
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => {
+                    if(post.id === postId) {
+                        // Update comment count
+                        const currentCount = post.comments && post.comments.length > 0 
+                            ? post.comments[0].count || 0 
+                            : 0;
+                        
+                        return {
+                            ...post,
+                            comments: [{ count: currentCount + 1 }]
+                        };
+                    }
+                    return post;
+                })
+            );
+        }
+        
+        if(payload.eventType === 'DELETE' && payload?.old) {
+            const { postId } = payload.old;
+            
+            setPosts(prevPosts => 
+                prevPosts.map(post => {
+                    if(post.id === postId) {
+                        // Update comment count
+                        const currentCount = post.comments && post.comments.length > 0 
+                            ? post.comments[0].count || 0 
+                            : 0;
+                        
+                        return {
+                            ...post,
+                            comments: [{ count: Math.max(0, currentCount - 1) }]
+                        };
+                    }
+                    return post;
+                })
+            );
+        }
+    };
+
+    const handleNewNotification = async (payload) => {
+        if(payload.eventType === 'INSERT' && payload.new.id) {
+            setNotificationCount(prev => prev + 1);
+        }
+    };
 
     console.log('Home user: ', user);
     
     useEffect(() => {
-        let postChannel = supabase
+        // Initialize posts
+        getPosts();
+        
+        // Set up real-time subscriptions
+        const postChannel = supabase
             .channel('posts')
             .on('postgres_changes', {
                 event: '*', 
@@ -91,22 +192,41 @@ const Home = () => {
             }, handlePostEvent)
             .subscribe();
 
-        // getPosts();
-        let notificationChannel = supabase
+        const likeChannel = supabase
+            .channel('postLikes')
+            .on('postgres_changes', {
+                event: '*', 
+                schema: 'public', 
+                table: 'postLikes'
+            }, handleLikeEvent)
+            .subscribe();
+
+        const commentChannel = supabase
+            .channel('comments')
+            .on('postgres_changes', {
+                event: '*', 
+                schema: 'public', 
+                table: 'comments'
+            }, handleCommentEvent)
+            .subscribe();
+
+        const notificationChannel = supabase
             .channel('notifications')
             .on('postgres_changes', {
                 event: 'INSERT', 
                 schema: 'public', 
                 table: 'notifications',
-                filter: 'receiverId=eq.${user.id}'
+                filter: `receiverId=eq.${user.id}`
             }, handleNewNotification)
             .subscribe();
         
         return () => {
             supabase.removeChannel(postChannel);
+            supabase.removeChannel(likeChannel);
+            supabase.removeChannel(commentChannel);
             supabase.removeChannel(notificationChannel);
         }
-    }, []);
+    }, [user.id]);
 
     const getPosts = async () => {
         try {
@@ -132,6 +252,17 @@ const Home = () => {
         }
     };
 
+    // Function to clear notification count when user visits notifications
+    const handleNotificationPress = () => {
+        setNotificationCount(0);
+        router.push('/notifications');
+    };
+
+    // Function to handle NFC friend adding
+    const handleNFCPress = () => {
+        router.push('/nfcFriend');
+    };
+
     return (
         <ScreenWrapper>
             <View style={styles.container}>
@@ -139,7 +270,7 @@ const Home = () => {
                 <View style={styles.header}>
                     <Text style={styles.title}>Welcome</Text>
                     <View style={styles.icons}>
-                        <Pressable onPress={() => router.push('/notifications')}>
+                        <Pressable onPress={handleNotificationPress}>
                             <Icon name="heart" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
                             {
                                 notificationCount > 0 && (
@@ -148,6 +279,9 @@ const Home = () => {
                                     </View>
                                 )
                             }
+                        </Pressable>
+                        <Pressable onPress={handleNFCPress}>
+                            <NFC size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
                         </Pressable>
                         <Pressable onPress={() => router.push('/newPost')}>
                             <Icon name="plus" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
