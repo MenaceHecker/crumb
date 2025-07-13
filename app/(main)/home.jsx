@@ -260,7 +260,8 @@ const Home = () => {
 
     // Function to handle NFC friend adding
     const handleNFCPress = () => {
-        router.push('/nfcFriend');
+       router.push('/nfcFriend');
+       
     };
 
     return (
