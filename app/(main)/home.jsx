@@ -71,6 +71,9 @@ const Home = () => {
             })
         }
     };
+    const handleNewNotification = async (payload) => {
+
+    }
 
     console.log('Home user: ', user);
     
@@ -85,9 +88,19 @@ const Home = () => {
             .subscribe();
 
         // getPosts();
+        let notificationChannel = supabase
+            .channel('notifications')
+            .on('postgres_changes', {
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'notifications',
+                filter: 'receiverId=eq.${user.id}'
+            }, handleNewNotification)
+            .subscribe();
         
         return () => {
             supabase.removeChannel(postChannel);
+            supabase.removeChannel(notificationChannel);
         }
     }, []);
 

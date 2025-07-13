@@ -15,7 +15,7 @@ import { createComment, fetchPostDetails, removeCommment, removePost } from '../
 
 
 const PostDetails = () => {
-    const {postId} = useLocalSearchParams();
+    const {postId, commentId} = useLocalSearchParams();
     const [post, setPost] = useState(null);
     const {user}  = useAuth();
     const router = useRouter();
@@ -240,6 +240,7 @@ const PostDetails = () => {
                      key= {comment?.id?.toString()}
                      item={comment}
                      onDelete={onDeleteComment}
+                     highlight={comment.id == commentId}
                      canDelete= {user.id == comment.userId || user.id == post.userId}
                      />
                 )

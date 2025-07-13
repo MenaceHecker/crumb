@@ -5,7 +5,7 @@ import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import Avatar from './Avatar'
 
-const CommentItem = ({item, canDelete = false, onDelete = ()=> {}}) => {
+const CommentItem = ({item, canDelete = false, onDelete = ()=> {}, highlight=false}) => {
   const createdAt = moment(item?.created_at).format('MMM DD, YYYY');
   const handleDelete = () => {
     Alert.alert('Confirm', 'Are you sure you wanna delete your comment?', [
