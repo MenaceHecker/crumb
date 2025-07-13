@@ -137,7 +137,7 @@ const Home = () => {
             <View style={styles.container}>
                 {/* header goes here now */}
                 <View style={styles.header}>
-                    <Text style={styles.title}>Joe!?</Text>
+                    <Text style={styles.title}>Welcome</Text>
                     <View style={styles.icons}>
                         <Pressable onPress={() => router.push('/notifications')}>
                             <Icon name="heart" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />
