@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import Avatar from './Avatar'
@@ -9,35 +9,44 @@ const NotificationItem = ({
     router
 }) => {
     const handleClick = () => {
-        let [postId, commentId] = JSON.parse(item?.data);
+        try {
+            // Parse the data and extract postId and commentId
+            const data = JSON.parse(item?.data || '{}');
+            const postId = data.postId;
+            const commentId = data.commentId;
+            
+            // Navigate to post details
+            router.push({
+                pathname: 'postDetails', 
+                params: { postId, commentId }
+            });
+        } catch (error) {
+            console.log('Error parsing notification data:', error);
+            console.log('Item data:', item?.data);
+        }
     }
+    
     const createdAt = moment(item?.created_at).format('MMM d');
-    router.push({pathname: 'postDetails', params: {postId, commentId}});
-  return (
-    <TouchableOpacity style={styles.container} onPress={handleClick}>
-        <Avatar
-        uri={item?.sender?.image}
-        size={hp(5)}
-        />
-        <View style={styles.nameTitle}>
-            <Text style={styles.text}>
-                {
-                    item?.sender?.name
-                }
+    
+    return (
+        <TouchableOpacity style={styles.container} onPress={handleClick}>
+            <Avatar
+                uri={item?.sender?.image}
+                size={hp(5)}
+            />
+            <View style={styles.nameTitle}>
+                <Text style={styles.text}>
+                    {item?.sender?.name}
+                </Text>
+                <Text style={[styles.text, {color: theme.colors.textDark}]}>
+                    {item?.title}
+                </Text>
+            </View>
+            <Text style={[styles.text, {color: theme.colors.textLight}]}>
+                {createdAt}
             </Text>
-            <Text style={[styles.text, {color: theme.colors.textDark}]}>
-                {
-                    item?.sender?.name
-                }
-            </Text>
-        </View>
-        <Text style = {[styles.text,{color: theme.colors.textLight}]}>
-            {
-                createdAt
-            }
-        </Text>
-    </TouchableOpacity>
-  )
+        </TouchableOpacity>
+    )
 }
 
 export default NotificationItem

@@ -23,11 +23,15 @@ export const createNotification = async (notification) => {
 
 export const fetchNotifications = async (receiverId) => {
     try {
-        const {data,error} = await supabase
-        .from('posts')
-        .select('*, sender: senderId(id, name, image) ')
-        .eq('receiverId', receiverId)
-        .order("created_at", {ascending: false});
+        const {data, error} = await supabase
+            .from('notifications')  // Changed from 'posts' to 'notifications'
+            .select(`
+                *,
+                sender:senderId(id, name, image),
+                receiver:receiverId(id, name, image)
+            `)
+            .eq('receiverId', receiverId)
+            .order("created_at", {ascending: false});
 
         if(error){
             console.log('FetchNotification Error:', error);

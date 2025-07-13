@@ -1,41 +1,60 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Header from '../../components/Header';
+import NotificationItem from '../../components/NotificationItem';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { theme } from '../../constants/theme';
+import { useAuth } from '../../contexts/AuthContext';
 import { hp, wp } from '../../helpers/common';
+import { fetchNotifications } from '../../services/notificationService';
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);
   const router = useRouter();
-  useEffect(()=> {
+  const { user } = useAuth(); // Get current user
+  
+  useEffect(() => {
+    if (user?.id) {
       getNotifications();
-  },[]);
-  const getNotifications = async () =>
-  {
-    let res = await fetchNotifications(UserActivation.id);
-    if(res.success){
-      setNotifications(res.data);
     }
-  }
+  }, [user?.id]);
+
+  const getNotifications = async () => {
+    try {
+      let res = await fetchNotifications(user.id); // Use user.id instead of UserActivation.id
+      if (res.success) {
+        setNotifications(res.data);
+      }
+    } catch (error) {
+      console.log('Error fetching notifications:', error);
+    }
+  };
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
+        <Header title="Notifications" />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listStyle}>
           {
-            notifications.map(item=>{
+            notifications.map(item => {
               return (
                 <NotificationItem
                   item={item}
                   key={item?.id}
                   router={router}
-                  />
+                />
               )
             })
           }
+          {
+            notifications.length === 0 && (
+              <Text style={styles.noData}>No Notifications to display!</Text>
+            )
+          } 
         </ScrollView>
       </View>
-      </ScreenWrapper>
+    </ScreenWrapper>
   )
 }
 
