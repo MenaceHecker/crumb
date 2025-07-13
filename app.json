@@ -35,6 +35,14 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 21
+          }
+        }
+      ],
       "expo-web-browser",
       "react-native-nfc-manager"
     ],
