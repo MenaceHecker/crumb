@@ -9,9 +9,10 @@ const NotificationItem = ({
     router
 }) => {
     const handleClick = () => {
-        // open post details
+        let [postId, commentId] = JSON.parse(item?.data);
     }
     const createdAt = moment(item?.created_at).format('MMM d');
+    router.push({pathname: 'postDetails', params: {postId, commentId}});
   return (
     <TouchableOpacity style={styles.container} onPress={handleClick}>
         <Avatar
