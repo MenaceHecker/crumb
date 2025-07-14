@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native'
-import React from 'react'
-import {theme} from '../constants/theme'
-import { StatusBar } from 'expo-status-bar'; 
-import ArrowLeft from '../assets/icons/ArrowLeft'; 
+import { Pressable, StyleSheet } from 'react-native';
+import ArrowLeft from '../assets/icons/ArrowLeft';
+import { theme } from '../constants/theme';
 
 const BackButton = ({size = 26, router}) => {
   return (

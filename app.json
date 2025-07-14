@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-       "infoPlist": {
+      "infoPlist": {
         "NFCReaderUsageDescription": "This app uses NFC to add friends by sharing user information."
       }
     },
@@ -24,8 +24,16 @@
       "permissions": [
         "android.permission.NFC",
         "android.permission.VIBRATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.nfc.action.NDEF_DISCOVERED",
+          "category": ["android.intent.category.DEFAULT"],
+          "data": {
+            "mimeType": "text/plain"
+          }
+        }
       ]
-
     },
     "web": {
       "bundler": "metro",
@@ -47,12 +55,13 @@
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 21
+            "minSdkVersion": 24,
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
           }
         }
       ],
-      "expo-web-browser",
-      "react-native-nfc-manager"
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
