@@ -236,13 +236,15 @@ const NfcFriend = () => {
 
             if (!enabledResult.enabled) {
                 console.log('NFC is disabled');
-                Alert.alert(
-                    'NFC Disabled', 
-                    'Please enable NFC in your device settings to use this feature.',
-                    [
-                        { text: 'OK', style: 'default' }
-                    ]
-                );
+                Alert.alert('NFC Disabled','Please enable NFC in your device settings to use this feature.',
+    [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+            text: 'Open Settings', 
+            onPress: () => NfcService.openNFCSettings()
+        }
+    ]
+);
                 setNfcStatus('NFC is disabled');
                 return;
             }
