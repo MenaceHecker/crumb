@@ -44,4 +44,4 @@ This is a social media application built with **React Native** for a seamless cr
 
 ---
 
-Feel free to explore and contribute! There are some issues caused by deprecated libraries that need fixing. Maybe some of them need an update. 
+Feel free to explore and contribute!There is an issue with the NFC compatibility. There are some issues caused by deprecated libraries that need fixing. Maybe some of them need an update. 
