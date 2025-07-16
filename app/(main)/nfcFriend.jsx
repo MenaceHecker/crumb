@@ -148,7 +148,7 @@
 
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import Delete from '../../assets/icons/Delete';
 import Edit from '../../assets/icons/Edit';
 import NFC from '../../assets/icons/NFCAdd';
@@ -161,20 +161,63 @@ import { hp, wp } from '../../helpers/common';
 import { getUserById, sendFriendRequest } from '../../services/friendsService';
 import NfcService from '../../services/nfcService';
 
+const { width } = Dimensions.get('window');
+
 const NfcFriend = () => {
     const { user } = useAuth();
     const router = useRouter();
     const [isWriting, setIsWriting] = useState(false);
     const [isReading, setIsReading] = useState(false);
     const [nfcStatus, setNfcStatus] = useState('Initializing NFC...');
+    
+    // Animation values
+    const [pulseAnim] = useState(new Animated.Value(1));
+    const [fadeAnim] = useState(new Animated.Value(0));
+    const [slideAnim] = useState(new Animated.Value(50));
 
     useEffect(() => {
         initializeNFC();
+        
+        // Entrance animations
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 600,
+                useNativeDriver: true,
+            }),
+        ]).start();
+
         return () => {
-            // Clean up NFC operations
             cleanup();
         };
     }, []);
+
+    // Pulse animation for NFC icon
+    useEffect(() => {
+        if (isWriting || isReading) {
+            const pulse = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, {
+                        toValue: 1.2,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(pulseAnim, {
+                        toValue: 1,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                ])
+            );
+            pulse.start();
+            return () => pulse.stop();
+        }
+    }, [isWriting, isReading]);
 
     const cleanup = async () => {
         try {
@@ -191,7 +234,6 @@ const NfcFriend = () => {
 
     const initializeNFC = async () => {
         try {
-            // Check if NfcService exists
             if (!NfcService) {
                 console.error('NfcService is not available');
                 setNfcStatus('NFC service not available');
@@ -202,7 +244,6 @@ const NfcFriend = () => {
             const result = await NfcService.initialize();
             console.log('NFC initialize result:', result);
             
-            // Handle null or undefined result
             if (!result) {
                 console.error('NFC initialize returned null/undefined');
                 setNfcStatus('NFC not available on this device');
@@ -220,7 +261,6 @@ const NfcFriend = () => {
             const enabledResult = await NfcService.checkNFCEnabled();
             console.log('NFC enabled check result:', enabledResult);
             
-            // Handle null or undefined result
             if (!enabledResult) {
                 console.error('NFC enabled check returned null/undefined');
                 setNfcStatus('Cannot check NFC status');
@@ -237,14 +277,14 @@ const NfcFriend = () => {
             if (!enabledResult.enabled) {
                 console.log('NFC is disabled');
                 Alert.alert('NFC Disabled','Please enable NFC in your device settings to use this feature.',
-    [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-            text: 'Open Settings', 
-            onPress: () => NfcService.openNFCSettings()
-        }
-    ]
-);
+                    [
+                        { text: 'Cancel', style: 'cancel' },
+                        { 
+                            text: 'Open Settings', 
+                            onPress: () => NfcService.openNFCSettings()
+                        }
+                    ]
+                );
                 setNfcStatus('NFC is disabled');
                 return;
             }
@@ -253,18 +293,11 @@ const NfcFriend = () => {
             setNfcStatus('NFC is ready');
         } catch (error) {
             console.error('NFC initialization error:', error);
-            console.error('Error type:', typeof error);
-            console.error('Error details:', JSON.stringify(error, null, 2));
-            
-            // More specific error handling
             if (error.message) {
                 setNfcStatus(`NFC error: ${error.message}`);
             } else {
                 setNfcStatus('NFC initialization failed');
             }
-            
-            // Don't show alert for common initialization failures
-            // Alert.alert('Error', 'Failed to initialize NFC');
         }
     };
 
@@ -312,14 +345,12 @@ const NfcFriend = () => {
             if (result && result.success && result.userId) {
                 const friendId = result.userId;
                 
-                // Check if trying to add themselves
                 if (friendId === user.id) {
                     Alert.alert('Error', 'You cannot add yourself as a friend');
                     setNfcStatus('Cannot add yourself');
                     return;
                 }
 
-                // Get friend's info
                 const friendResult = await getUserById(friendId);
                 if (!friendResult || !friendResult.success) {
                     Alert.alert('Error', 'Friend not found');
@@ -330,7 +361,6 @@ const NfcFriend = () => {
                 const friend = friendResult.data;
                 const friendName = friend?.name || friend?.email || 'Unknown User';
 
-                // Show confirmation dialog
                 Alert.alert(
                     'Add Friend',
                     `Do you want to send a friend request to ${friendName}?`,
@@ -391,86 +421,170 @@ const NfcFriend = () => {
         }
     };
 
+    const getStatusColor = () => {
+        if (nfcStatus.includes('ready')) return theme.colors.primary;
+        if (nfcStatus.includes('successful') || nfcStatus.includes('sent')) return '#4CAF50';
+        if (nfcStatus.includes('failed') || nfcStatus.includes('error')) return '#F44336';
+        return theme.colors.textLight;
+    };
+
     return (
         <ScreenWrapper bg="white">
             <Header 
                 title="Add Friend via NFC" 
                 showBackButton={true}
-                mb={hp(3)}
+                mb={hp(2)}
             />
             
-            <View style={styles.container}>
-                {/* NFC Status */}
-                <View style={styles.statusContainer}>
-                    <NFC width={hp(8)} height={hp(8)} fill={theme.colors.primary} />
-                    <Text style={styles.statusText}>{nfcStatus}</Text>
+            <Animated.View 
+                style={[
+                    styles.container,
+                    {
+                        opacity: fadeAnim,
+                        transform: [{ translateY: slideAnim }]
+                    }
+                ]}
+            >
+                {/* Hero Section */}
+                <View style={styles.heroSection}>
+                    <Animated.View 
+                        style={[
+                            styles.nfcIconContainer,
+                            {
+                                transform: [{ scale: pulseAnim }]
+                            }
+                        ]}
+                    >
+                        <View style={styles.nfcGradient}>
+                            <NFC width={hp(6)} height={hp(6)} fill="white" />
+                        </View>
+                    </Animated.View>
+                    
+                    <Text style={styles.heroTitle}>Connect Instantly</Text>
+                    <Text style={styles.heroSubtitle}>
+                        Share your profile or discover friends with a simple tap
+                    </Text>
+                </View>
+
+                {/* Status Card */}
+                <View style={styles.statusCard}>
+                    <View style={[styles.statusIndicator, { backgroundColor: getStatusColor() }]} />
+                    <Text style={[styles.statusText, { color: getStatusColor() }]}>
+                        {nfcStatus}
+                    </Text>
                 </View>
 
                 {/* Action Buttons */}
-                <View style={styles.buttonContainer}>
+                <View style={styles.actionSection}>
                     <Pressable 
-                        style={[styles.button, styles.writeButton, isWriting && styles.buttonDisabled]}
+                        style={[styles.actionButton, isWriting && styles.buttonActive]}
                         onPress={handleWriteNFC}
                         disabled={isWriting || isReading}
                     >
-                        {isWriting ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <Edit width={hp(2.5)} height={hp(2.5)} fill="white" />
-                        )}
-                        <Text style={styles.buttonText}>
-                            {isWriting ? 'Writing...' : 'Write My Info to NFC'}
-                        </Text>
+                        <View
+                            style={[
+                                styles.buttonGradient,
+                                isWriting 
+                                    ? { backgroundColor: '#ff6b6b' } 
+                                    : { backgroundColor: '#667eea' }
+                            ]}
+                        >
+                            <View style={styles.buttonContent}>
+                                {isWriting ? (
+                                    <ActivityIndicator color="white" size="small" />
+                                ) : (
+                                    <Edit width={hp(3)} height={hp(3)} fill="white" />
+                                )}
+                                <Text style={styles.buttonText}>
+                                    {isWriting ? 'Writing to NFC...' : 'Share My Profile'}
+                                </Text>
+                                <Text style={styles.buttonSubtext}>
+                                    Write your info to an NFC tag
+                                </Text>
+                            </View>
+                        </View>
                     </Pressable>
 
                     <Pressable 
-                        style={[styles.button, styles.readButton, isReading && styles.buttonDisabled]}
+                        style={[styles.actionButton, isReading && styles.buttonActive]}
                         onPress={handleReadNFC}
                         disabled={isWriting || isReading}
                     >
-                        {isReading ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <Search width={hp(2.5)} height={hp(2.5)} fill="white" />
-                        )}
-                        <Text style={styles.buttonText}>
-                            {isReading ? 'Reading...' : 'Read Friend\'s NFC'}
-                        </Text>
+                        <View
+                            style={[
+                                styles.buttonGradient,
+                                isReading 
+                                    ? { backgroundColor: '#ff6b6b' } 
+                                    : { backgroundColor: '#f093fb' }
+                            ]}
+                        >
+                            <View style={styles.buttonContent}>
+                                {isReading ? (
+                                    <ActivityIndicator color="white" size="small" />
+                                ) : (
+                                    <Search width={hp(3)} height={hp(3)} fill="white" />
+                                )}
+                                <Text style={styles.buttonText}>
+                                    {isReading ? 'Reading NFC...' : 'Discover Friends'}
+                                </Text>
+                                <Text style={styles.buttonSubtext}>
+                                    Read from a friend's NFC tag
+                                </Text>
+                            </View>
+                        </View>
                     </Pressable>
 
                     {(isWriting || isReading) && (
-                        <Pressable 
-                            style={[styles.button, styles.stopButton]}
-                            onPress={stopNFC}
+                        <Animated.View
+                            style={{
+                                opacity: fadeAnim,
+                                transform: [{ translateY: slideAnim }]
+                            }}
                         >
-                            <Delete width={hp(2.5)} height={hp(2.5)} fill="white" />
-                            <Text style={styles.buttonText}>Stop</Text>
-                        </Pressable>
+                            <Pressable 
+                                style={styles.stopButton}
+                                onPress={stopNFC}
+                            >
+                                <Delete width={hp(2.5)} height={hp(2.5)} fill="#F44336" />
+                                <Text style={styles.stopButtonText}>Cancel</Text>
+                            </Pressable>
+                        </Animated.View>
                     )}
                 </View>
 
-                {/* Instructions */}
-                <View style={styles.instructionsContainer}>
-                    <Text style={styles.instructionsTitle}>How to use:</Text>
-                    <Text style={styles.instructionsText}>
-                        1. Tap "Write My Info to NFC" to save your profile to an NFC tag
-                    </Text>
-                    <Text style={styles.instructionsText}>
-                        2. Tap "Read Friend's NFC" and hold your phone near their NFC tag
-                    </Text>
-                    <Text style={styles.instructionsText}>
-                        3. Confirm to send a friend request
-                    </Text>
+                {/* Quick Guide */}
+                <View style={styles.guideContainer}>
+                    <Text style={styles.guideTitle}>Quick Guide</Text>
+                    <View style={styles.guideSteps}>
+                        <View style={styles.guideStep}>
+                            <View style={[styles.stepNumber, { backgroundColor: '#667eea' }]}>
+                                <Text style={styles.stepNumberText}>1</Text>
+                            </View>
+                            <Text style={styles.stepText}>Tap "Share My Profile" to write your info to an NFC tag</Text>
+                        </View>
+                        <View style={styles.guideStep}>
+                            <View style={[styles.stepNumber, { backgroundColor: '#f093fb' }]}>
+                                <Text style={styles.stepNumberText}>2</Text>
+                            </View>
+                            <Text style={styles.stepText}>Hold your phone near a friend's NFC tag to connect</Text>
+                        </View>
+                        <View style={styles.guideStep}>
+                            <View style={[styles.stepNumber, { backgroundColor: '#4CAF50' }]}>
+                                <Text style={styles.stepNumberText}>3</Text>
+                            </View>
+                            <Text style={styles.stepText}>Confirm to send a friend request instantly</Text>
+                        </View>
+                    </View>
                 </View>
 
-                {/* Friends List Button */}
+                {/* Footer Button */}
                 <Pressable 
                     style={styles.friendsButton}
                     onPress={() => router.push('/friends')}
                 >
-                    <Text style={styles.friendsButtonText}>View Friends</Text>
+                    <Text style={styles.friendsButtonText}>View My Friends</Text>
                 </Pressable>
-            </View>
+            </Animated.View>
         </ScreenWrapper>
     );
 };
@@ -480,63 +594,156 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: wp(4),
     },
-    statusContainer: {
+    heroSection: {
         alignItems: 'center',
-        marginBottom: hp(4),
         paddingVertical: hp(3),
+        marginBottom: hp(2),
     },
-    statusText: {
-        fontSize: hp(2),
+    nfcIconContainer: {
+        marginBottom: hp(2),
+    },
+    nfcGradient: {
+        width: hp(10),
+        height: hp(10),
+        borderRadius: hp(5),
+        backgroundColor: '#667eea',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 8,
+    },
+    heroTitle: {
+        fontSize: hp(3),
+        fontWeight: '700',
+        color: theme.colors.text,
+        textAlign: 'center',
+        marginBottom: hp(1),
+    },
+    heroSubtitle: {
+        fontSize: hp(1.8),
         color: theme.colors.textLight,
         textAlign: 'center',
-        marginTop: hp(2),
+        lineHeight: hp(2.5),
+        paddingHorizontal: wp(8),
     },
-    buttonContainer: {
+    statusCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        paddingHorizontal: wp(4),
+        paddingVertical: hp(2),
+        borderRadius: 16,
+        marginBottom: hp(3),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    statusIndicator: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        marginRight: wp(3),
+    },
+    statusText: {
+        fontSize: hp(1.8),
+        fontWeight: '500',
+        flex: 1,
+    },
+    actionSection: {
         gap: hp(2),
         marginBottom: hp(4),
     },
-    button: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: hp(2),
+    actionButton: {
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 6,
+    },
+    buttonActive: {
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+    },
+    buttonGradient: {
+        borderRadius: 20,
+        paddingVertical: hp(2.5),
         paddingHorizontal: wp(4),
-        borderRadius: theme.radius.md,
-        gap: wp(2),
     },
-    writeButton: {
-        backgroundColor: theme.colors.primary,
-    },
-    readButton: {
-        backgroundColor: theme.colors.secondary,
-    },
-    stopButton: {
-        backgroundColor: theme.colors.rose,
-    },
-    buttonDisabled: {
-        opacity: 0.6,
+    buttonContent: {
+        alignItems: 'center',
+        gap: hp(0.5),
     },
     buttonText: {
         color: 'white',
-        fontSize: hp(2),
-        fontWeight: theme.fonts.medium,
+        fontSize: hp(2.2),
+        fontWeight: '600',
+        textAlign: 'center',
     },
-    instructionsContainer: {
-        backgroundColor: theme.colors.gray,
+    buttonSubtext: {
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: hp(1.6),
+        textAlign: 'center',
+    },
+    stopButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: hp(1.5),
+        paddingHorizontal: wp(4),
+        backgroundColor: 'white',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#F44336',
+        gap: wp(2),
+    },
+    stopButtonText: {
+        color: '#F44336',
+        fontSize: hp(1.8),
+        fontWeight: '500',
+    },
+    guideContainer: {
+        backgroundColor: '#f8f9fa',
+        borderRadius: 16,
         padding: wp(4),
-        borderRadius: theme.radius.md,
         marginBottom: hp(3),
     },
-    instructionsTitle: {
+    guideTitle: {
         fontSize: hp(2.2),
-        fontWeight: theme.fonts.semibold,
+        fontWeight: '600',
         color: theme.colors.text,
-        marginBottom: hp(1),
+        marginBottom: hp(2),
     },
-    instructionsText: {
+    guideSteps: {
+        gap: hp(2),
+    },
+    guideStep: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: wp(3),
+    },
+    stepNumber: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stepNumberText: {
+        color: 'white',
+        fontSize: hp(1.8),
+        fontWeight: '600',
+    },
+    stepText: {
+        flex: 1,
         fontSize: hp(1.8),
         color: theme.colors.textLight,
-        marginBottom: hp(0.5),
+        lineHeight: hp(2.4),
     },
     friendsButton: {
         flexDirection: 'row',
@@ -544,15 +751,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: hp(2),
         paddingHorizontal: wp(4),
-        borderRadius: theme.radius.md,
-        borderWidth: 1,
+        borderRadius: 16,
+        borderWidth: 2,
         borderColor: theme.colors.primary,
-        gap: wp(2),
+        backgroundColor: 'white',
+        marginTop: 'auto',
+        marginBottom: hp(2),
     },
     friendsButtonText: {
         color: theme.colors.primary,
         fontSize: hp(2),
-        fontWeight: theme.fonts.medium,
+        fontWeight: '600',
     },
 });
 

@@ -98,6 +98,7 @@ const Profile = () => {
 }
 
 const UserHeader = ({user, router, handleLogout, posts}) => {
+
   return (
     <View style={styles.headerContainer}>
       {/* Top Header with username and menu */}
@@ -130,12 +131,8 @@ const UserHeader = ({user, router, handleLogout, posts}) => {
               <Text style={styles.statLabel}>Posts</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text style={styles.statNumber}>{user?.friendsCount || 0}</Text>
+              <Text style={styles.statLabel}>Friends</Text>
             </View>
           </View>
         </View>
