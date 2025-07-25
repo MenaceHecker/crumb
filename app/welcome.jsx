@@ -1,10 +1,9 @@
-import { StyleSheet, Text, View, StatusBar, Image, Pressable } from 'react-native'
-import React from 'react'
-import { useRouter } from 'expo-router'
-import ScreenWrapper from '../components/ScreenWrapper'
-import { wp, hp } from '../helpers/common';
-import { theme } from '../constants/theme';
+import { useRouter } from 'expo-router';
+import { Image, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import ButtonGen from '../components/ButtonGen';
+import ScreenWrapper from '../components/ScreenWrapper';
+import { theme } from '../constants/theme';
+import { hp, wp } from '../helpers/common';
 
 const Welcome = () => {
   const router = useRouter();
@@ -22,7 +21,7 @@ const Welcome = () => {
         
         {/* title of the app - Test with explicit string */}
         <View style={{gap: 20}}>
-          <Text style={styles.title}>Joe!</Text>
+          <Text style={styles.title}>Hey</Text>
           <Text style={styles.punchline}>
             What are es be happening in the world today?
           </Text>
